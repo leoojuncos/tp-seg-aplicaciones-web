@@ -1,0 +1,173 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  detectar:
+    name: Detectar qué servicios existen
+    runs-on: ubuntu-latest
+    outputs:
+      monolito: ${{ steps.detectar.outputs.monolito }}
+      auditoria: ${{ steps.detectar.outputs.auditoria }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: detectar
+        run: |
+          for servicio in monolito auditoria; do
+            if [ -f "$servicio/pom.xml" ]; then
+              echo "$servicio=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "$servicio=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::Todavía no existe $servicio/ en el repo, se saltea su check"
+            fi
+          done
+
+  monolito:
+    name: Monolito compila y arranca
+    needs: detectar
+    if: needs.detectar.outputs.monolito == 'true'
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: sgm
+          POSTGRES_USER: sgm
+          POSTGRES_PASSWORD: sgm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sgm"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      rabbitmq:
+        image: rabbitmq:3.13-management
+        env:
+          RABBITMQ_DEFAULT_USER: sgm
+          RABBITMQ_DEFAULT_PASS: sgm
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 10s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: monolito
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Compilar y correr tests
+        run: ./mvnw -B package
+
+      - name: Levantar el monolito
+        run: |
+          java -jar target/monolito-*.jar > app.log 2>&1 &
+          echo $! > app.pid
+
+      - name: Esperar a que /api/health responda 200
+        run: |
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:8080/api/health; then
+              echo
+              exit 0
+            fi
+            if ! kill -0 "$(cat app.pid)" 2>/dev/null; then
+              echo "El monolito se cayó al arrancar"
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "El health no respondió 200 en 60 segundos"
+          exit 1
+
+      - name: Mostrar el log del monolito
+        if: failure()
+        run: cat app.log 2>/dev/null || echo "El monolito no llegó a arrancar"
+
+  auditoria:
+    name: Auditoría compila y arranca
+    needs: detectar
+    if: needs.detectar.outputs.auditoria == 'true'
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: sgm
+          POSTGRES_USER: sgm
+          POSTGRES_PASSWORD: sgm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sgm"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      rabbitmq:
+        image: rabbitmq:3.13-management
+        env:
+          RABBITMQ_DEFAULT_USER: sgm
+          RABBITMQ_DEFAULT_PASS: sgm
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 10s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: auditoria
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Compilar y correr tests
+        run: ./mvnw -B package
+
+      - name: Levantar el microservicio de Auditoría
+        run: |
+          java -jar target/*.jar > app.log 2>&1 &
+          echo $! > app.pid
+
+      - name: Esperar a que /api/health responda 200
+        run: |
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:8081/api/health; then
+              echo
+              exit 0
+            fi
+            if ! kill -0 "$(cat app.pid)" 2>/dev/null; then
+              echo "El microservicio de Auditoría se cayó al arrancar"
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "El health no respondió 200 en 60 segundos"
+          exit 1
+
+      - name: Mostrar el log del microservicio de Auditoría
+        if: failure()
+        run: cat app.log 2>/dev/null || echo "El microservicio de Auditoría no llegó a arrancar"
