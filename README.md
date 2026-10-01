@@ -45,6 +45,10 @@ Los PRs los revisa un reviewer automático: Claude Opus, con una segunda opinió
 > [!WARNING]
 > **`review-now` es SOLO para algo MUY importante que no puede esperar a la noche.** Cada review inmediata gasta en el momento el cupo de Claude de @leoojuncos, en pleno horario de trabajo. Hay un tope de 2 por día para todo el equipo: pasado el tope, el bot saca la etiqueta y el PR queda para la noche. Si no está claro que sea urgente, no lo es: usar `reviewable`.
 
+### Qué mira el reviewer
+
+Además del código, el reviewer lee el ticket de Jira que figura en el título del PR (`TPS-…`) y, de la descripción, solo la sección `Aclaraciones`. Ahí van los desvíos respecto del ticket, con su motivo: algo que el ticket pide y no se hizo, o algo que se hizo y el ticket no pide. Un desvío explicado en `Aclaraciones` no se marca; uno sin explicar, sí. El resto de la descripción no se lee.
+
 ### Cómo leer el veredicto
 
 Cada pasada deja un comentario con los hallazgos numerados (F1, F2…), su severidad y el `archivo:línea`.
