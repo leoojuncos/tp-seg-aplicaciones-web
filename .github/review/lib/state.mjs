@@ -11,6 +11,17 @@ export const LABELS = {
 
 const MARKER = /<!-- review-bot:([a-z-]+) ([A-Za-z0-9+/=]*) -->/g;
 const SEVERITY_ORDER = { BLOCK: 0, WARN: 1, INFO: 2 };
+const CLARIFICATIONS_TITLE = /^\s*(?:#{1,6}\s*)?(?:\*\*|__)?\s*aclaraciones\s*:?\s*(?:\*\*|__)?\s*:?\s*$/i;
+const ANY_TITLE = /^\s*(?:#{1,6}\s+\S|(?:\*\*|__)[^*_]+(?:\*\*|__)\s*:?\s*$)/;
+
+export function clarificationsOf(body) {
+  const lines = (body ?? "").split(/\r?\n/);
+  const start = lines.findIndex((line) => CLARIFICATIONS_TITLE.test(line));
+  if (start === -1) return null;
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((line) => ANY_TITLE.test(line));
+  return (end === -1 ? rest : rest.slice(0, end)).join("\n").trim() || null;
+}
 
 export function marker(kind, data = {}) {
   return `<!-- review-bot:${kind} ${Buffer.from(JSON.stringify(data)).toString("base64")} -->`;

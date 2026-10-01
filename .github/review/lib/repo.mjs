@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { clarificationsOf } from "./state.mjs";
 
 const EXCLUDED = [
   ":(exclude,glob)**/package-lock.json",
@@ -58,7 +59,7 @@ export function fetchPullHead({ dir, repo, number, base }) {
   return git(dir, "rev-parse", "HEAD").trim();
 }
 
-export function buildContext({ dir, inputs, sha, baseRef, baseName, pull, previous, replies }) {
+export function buildContext({ dir, inputs, sha, baseRef, baseName, pull, ticket, previous, replies }) {
   mkdirSync(inputs, { recursive: true });
   const mergeBase = git(dir, "merge-base", baseRef, sha).trim();
   const diffFile = join(inputs, "pr.diff");
@@ -88,6 +89,8 @@ export function buildContext({ dir, inputs, sha, baseRef, baseName, pull, previo
     agents: readOptional(join(dir, "AGENTS.md")),
     readme: readOptional(join(dir, "README.md")),
     pull,
+    clarifications: clarificationsOf(pull.body),
+    ticket,
     previous,
     replies,
   };

@@ -6,6 +6,7 @@ const CATEGORY = {
   contract: "contrato",
   convention: "convención",
   scenario: "escenario",
+  ticket: "ticket",
 };
 
 const UPDATE = { persists: "se mantiene", resolved: "resuelto", justified: "justified" };
@@ -59,23 +60,25 @@ function renderCarried(carried) {
   return `**De pasadas anteriores**\n${items.join("\n")}`;
 }
 
-function renderFooter(externals, discarded) {
+function renderFooter(externals, discarded, ticket) {
   const voted = ["Opus", ...externals.filter((external) => external.status === "ok").map((external) => external.name)];
   const silent = externals.filter((external) => external.status === "failed").map((external) => external.name);
   let text = voted.length === 1 ? "Verificó Opus" : `Verificaron ${join(voted)}`;
   if (silent.length > 0) text += `; ${join(silent)} no ${silent.length === 1 ? "respondió" : "respondieron"}`;
+  if (ticket?.status === "ok") text += ` · leyó ${ticket.key}`;
+  if (ticket?.status === "failed") text += ` · no pudo leer ${ticket.key}`;
   if (discarded > 0) {
     text += ` · ${discarded} ${discarded === 1 ? "candidato descartado" : "candidatos descartados"} en la verificación`;
   }
   return `<sub>${text}.</sub>`;
 }
 
-export function renderVerdict({ repo, sha, verdict, stale, externals }) {
+export function renderVerdict({ repo, sha, verdict, stale, externals, ticket }) {
   const parts = [heading(verdict.result, stale, sha), summary(verdict, stale)];
   parts.push(...verdict.added.map((finding) => renderFinding(repo, sha, finding)));
   const carried = renderCarried(verdict.carried);
   if (carried) parts.push(carried);
-  parts.push(renderFooter(externals, verdict.discarded));
+  parts.push(renderFooter(externals, verdict.discarded, ticket));
   parts.push(
     marker("veredicto", {
       sha,

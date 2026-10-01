@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 
 export class QuotaError extends Error {}
 
-const HIDDEN_ENV = new Set(["GITHUB_TOKEN", "GEMINI_API_KEY", "OPENROUTER_API_KEY"]);
+const HIDDEN_ENV = new Set(["GITHUB_TOKEN", "GEMINI_API_KEY", "OPENROUTER_API_KEY", "JIRA_EMAIL", "JIRA_API_TOKEN"]);
 const QUOTA_STATUS = new Set([429, 529]);
 const QUOTA_TEXT = /usage limit|hit your limit|rate.?limit|overloaded/i;
 const EXTERNAL_TIMEOUT_MS = 60000;

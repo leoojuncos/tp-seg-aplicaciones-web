@@ -22,6 +22,7 @@ import {
   renderVerdict,
 } from "./lib/comment.mjs";
 import { buildContext, fetchPullHead } from "./lib/repo.mjs";
+import { fetchTicket, ticketKey } from "./lib/jira.mjs";
 import { runPipeline } from "./lib/pipeline.mjs";
 import { QuotaError } from "./lib/models.mjs";
 
@@ -76,6 +77,23 @@ function humanReplies(issueComments, reviewComments, since) {
       line: comment.line ?? comment.original_line ?? 0,
     })),
   ].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+async function readTicket(pull) {
+  const key = process.env.JIRA_URL ? ticketKey(process.env.JIRA_PROJECT ?? "TPS", pull.title, pull.head.ref) : null;
+  if (!key) return { key: null, status: "none", data: null };
+  try {
+    const data = await fetchTicket({
+      baseUrl: process.env.JIRA_URL,
+      key,
+      email: process.env.JIRA_EMAIL,
+      token: process.env.JIRA_API_TOKEN,
+    });
+    return { key, status: "ok", data };
+  } catch (error) {
+    console.log(`No se pudo leer ${key}: ${error.message}`);
+    return { key, status: "failed", data: null };
+  }
 }
 
 async function etiquetas() {
@@ -138,6 +156,7 @@ async function revisar({ pr, origen }) {
   const sha = fetchPullHead({ dir, repo, number, base: pull.base.ref });
   saveState({ number, started: true, sha });
   const replies = previous ? humanReplies(comments, await github.listReviewComments(number), previous.createdAt) : [];
+  const ticket = await readTicket(pull);
   const context = buildContext({
     dir,
     inputs: join(work, "entradas"),
@@ -145,6 +164,7 @@ async function revisar({ pr, origen }) {
     baseRef: "refs/review/base",
     baseName: pull.base.ref,
     pull: { number, title: pull.title, body: pull.body, author: pull.user.login },
+    ticket,
     previous: previous?.data ?? null,
     replies,
   });
@@ -156,7 +176,10 @@ async function revisar({ pr, origen }) {
     throw error;
   }
   const stale = (await github.getPull(number)).head.sha !== sha;
-  await github.comment(number, renderVerdict({ repo, sha, verdict: result.verdict, stale, externals: result.externals }));
+  await github.comment(
+    number,
+    renderVerdict({ repo, sha, verdict: result.verdict, stale, externals: result.externals, ticket }),
+  );
   await github.removeLabel(number, LABELS.inReview);
   if (stale) {
     await github.removeLabel(number, LABELS.approved);
