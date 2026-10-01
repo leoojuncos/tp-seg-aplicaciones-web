@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findings"],
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "severity", "category", "file", "line", "description", "evidence", "confidence"],
+        "properties": {
+          "title": { "type": "string" },
+          "severity": { "type": "string", "enum": ["BLOCK", "WARN", "INFO"] },
+          "category": { "type": "string", "enum": ["security", "logic", "contract", "convention", "scenario", "ticket"] },
+          "file": { "type": "string" },
+          "line": { "type": "integer" },
+          "description": { "type": "string" },
+          "evidence": { "type": "string" },
+          "confidence": { "type": "number" }
+        }
+      }
+    }
+  }
+}

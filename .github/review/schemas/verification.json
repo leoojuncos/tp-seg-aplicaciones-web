@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["candidates", "previous"],
+  "properties": {
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "verdict", "severity", "duplicate_of", "reason"],
+        "properties": {
+          "ref": { "type": "string" },
+          "verdict": { "type": "string", "enum": ["yes", "no", "unsure"] },
+          "severity": { "type": "string", "enum": ["BLOCK", "WARN", "INFO"] },
+          "duplicate_of": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "previous": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "reason"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string", "enum": ["resolved", "justified", "persists"] },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

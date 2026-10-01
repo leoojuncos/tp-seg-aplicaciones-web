@@ -68,3 +68,15 @@ git push --force-with-lease
 - Antes del push, `git log --oneline origin/main..HEAD` no tiene que mostrar ningún commit `fixup!`.
 - Usar `--force-with-lease` y no `--force`: si alguien pusheó a la branch algo que no está en la copia local, el push falla en vez de pisarlo.
 - Nunca reescribir ni hacer force-push de `main`.
+
+## Vulnerabilidades del escenario
+
+El SGM es una aplicación didáctica: corre solo en local y es deliberadamente vulnerable, como OWASP Juice Shop o DVWA, para mostrar en clase vulnerabilidades del OWASP Top 10 y cómo se mitigan. Esta lista es la referencia para el equipo, para los agentes y para la review automática de PRs.
+
+- Una vulnerabilidad de la lista no se corrige, salvo en el cambio que implementa su mitigación.
+- Una vulnerabilidad que no está en la lista es un defecto, aunque parezca intencional: se corrige o, con el acuerdo del equipo, se suma a la lista.
+- Sumar, sacar o cambiar una entrada es una decisión del escenario: va en su propio commit y se explica en la descripción del PR.
+- Cada entrada dice qué vulnerabilidad es y su categoría del OWASP Top 10, dónde está (módulo y endpoint o componente), qué muestra en la demo y cómo se mitiga.
+- Los pasos de explotación y los payloads de la demo no van acá ni en ningún archivo que carguen los agentes. Este archivo entra en el contexto de cada sesión, y ese contenido puede activar los filtros de seguridad del modelo y cortar la sesión.
+
+Pendiente: cargar las cuatro vulnerabilidades de la cadena.
