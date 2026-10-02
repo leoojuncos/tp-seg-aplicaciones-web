@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { assembleVerdict } from "./state.mjs";
 import { EXTERNALS, QuotaError, askExternal, runClaude } from "./models.mjs";
-import { codeFor } from "./repo.mjs";
+import { codeFor, lineCount } from "./repo.mjs";
 
 const FINDERS = [
   { prefix: "L", prompt: "logic", origin: "lógica" },
@@ -70,6 +70,7 @@ function contextSection(context) {
     files || "(ninguno)",
     "",
     `El diff completo del PR está en \`${context.diffFile}\`. El código del PR, en el commit revisado, está en el directorio de trabajo.`,
+    "Cada línea del diff empieza con su número en el archivo del commit revisado (las líneas borradas no llevan número). En `line` va ese número, nunca la posición dentro del diff.",
   ];
   if (context.deltaFile) {
     lines.push(`Los cambios desde la pasada anterior (\`${context.previous.sha.slice(0, 7)}\`) están en \`${context.deltaFile}\`.`);
@@ -179,12 +180,11 @@ export async function runPipeline(context, settings) {
     ),
   );
   const candidates = batches.flatMap((batch, index) =>
-    batch.findings.map((finding, position) => ({
-      ...finding,
-      file: normalizePath(finding.file, context.dir),
-      ref: `${FINDERS[index].prefix}${position + 1}`,
-      origin: FINDERS[index].origin,
-    })),
+    batch.findings.map((finding, position) => {
+      const file = normalizePath(finding.file, context.dir);
+      const line = finding.line > 0 && finding.line <= lineCount(context, file) ? finding.line : 0;
+      return { ...finding, file, line, ref: `${FINDERS[index].prefix}${position + 1}`, origin: FINDERS[index].origin };
+    }),
   );
   console.log(`Candidatos: ${candidates.map((candidate) => `${candidate.ref} ${candidate.severity}`).join(", ") || "ninguno"}`);
   const open = (context.previous?.findings ?? []).filter((finding) => finding.status === "open");

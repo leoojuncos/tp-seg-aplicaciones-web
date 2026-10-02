@@ -26,6 +26,42 @@ function gitAuth(dir, ...args) {
   return git(dir, ...(token ? ["-c", `http.extraheader=${header}`] : []), ...args);
 }
 
+export function annotateDiff(diff) {
+  let line = 0;
+  let inHunk = false;
+  return diff
+    .split("\n")
+    .map((text) => {
+      const hunk = text.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+      if (hunk) {
+        line = Number(hunk[1]);
+        inHunk = true;
+        return text;
+      }
+      if (text.startsWith("diff --git")) inHunk = false;
+      if (!inHunk) return text;
+      if (text.startsWith("-")) return `      | ${text}`;
+      if (text.startsWith("+") || text.startsWith(" ")) return `${String(line++).padStart(5)} | ${text}`;
+      return text;
+    })
+    .join("\n");
+}
+
+const lineCounts = new Map();
+
+export function lineCount(context, file) {
+  if (!file) return 0;
+  if (!lineCounts.has(file)) {
+    try {
+      const content = git(context.dir, "show", `${context.sha}:${file}`);
+      lineCounts.set(file, content.split("\n").length - (content.endsWith("\n") ? 1 : 0));
+    } catch {
+      lineCounts.set(file, 0);
+    }
+  }
+  return lineCounts.get(file);
+}
+
 function readOptional(path) {
   try {
     return readFileSync(path, "utf8");
@@ -63,7 +99,10 @@ export function buildContext({ dir, inputs, sha, baseRef, baseName, pull, ticket
   mkdirSync(inputs, { recursive: true });
   const mergeBase = git(dir, "merge-base", baseRef, sha).trim();
   const diffFile = join(inputs, "pr.diff");
-  writeFileSync(diffFile, git(dir, "diff", "--no-color", "--find-renames", mergeBase, sha, "--", ".", ...EXCLUDED));
+  writeFileSync(
+    diffFile,
+    annotateDiff(git(dir, "diff", "--no-color", "--find-renames", mergeBase, sha, "--", ".", ...EXCLUDED)),
+  );
   const files = git(dir, "diff", "--numstat", "--find-renames", mergeBase, sha, "--", ".", ...EXCLUDED)
     .split("\n")
     .filter(Boolean)
@@ -75,7 +114,10 @@ export function buildContext({ dir, inputs, sha, baseRef, baseName, pull, ticket
   let deltaFile = null;
   if (previous?.sha && previous.sha !== sha && hasCommit(dir, previous.sha)) {
     deltaFile = join(inputs, "delta.diff");
-    writeFileSync(deltaFile, git(dir, "diff", "--no-color", "--find-renames", previous.sha, sha, "--", ".", ...EXCLUDED));
+    writeFileSync(
+      deltaFile,
+      annotateDiff(git(dir, "diff", "--no-color", "--find-renames", previous.sha, sha, "--", ".", ...EXCLUDED)),
+    );
   }
   return {
     dir,

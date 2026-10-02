@@ -58,5 +58,5 @@ Un refactor que no cambia el comportamiento observable no es un hallazgo. Tampoc
 
 - `title`: corto, el problema en pocas palabras.
 - `description`: una o dos oraciones densas con el mecanismo o el dato, sin cronología ni "se evaluó X y se descartó".
-- `file`: relativo a la raíz del repo. `line`: la línea del problema.
+- `file`: relativo a la raíz del repo. `line`: el número de línea en el archivo, el que figura al principio de cada línea del diff; nunca la posición dentro del diff.
 - Si el hallazgo es sobre los commits o sobre el título del PR, `file` va vacío y `line` en 0.
