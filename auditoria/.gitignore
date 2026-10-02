@@ -1,0 +1,15 @@
+# Maven
+target/
+
+# Variables de entorno locales (pueden tener credenciales reales)
+.env
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.zed/
+
+# Artefactos que deja el CI al levantar la app
+app.log
+app.pid
