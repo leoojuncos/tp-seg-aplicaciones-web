@@ -66,6 +66,11 @@ export function startOfDayArgentina(now = new Date()) {
   return new Date(`${local.toISOString().slice(0, 10)}T03:00:00.000Z`);
 }
 
+export function isWorkingHours(now = new Date()) {
+  const hour = (now.getUTCHours() + 21) % 24;
+  return hour >= 9 && hour < 17;
+}
+
 export function countReviewNow(comments, since) {
   const today = comments.filter((comment) => new Date(comment.created_at) >= since);
   return botHistory(today).filter((entry) => entry.kind === "review-now" && entry.data.counts).length;

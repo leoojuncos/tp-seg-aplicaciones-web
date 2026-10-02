@@ -9,6 +9,7 @@ import {
   countReviewNow,
   decideLabelEvent,
   failuresSinceVerdict,
+  isWorkingHours,
   lastEntry,
   lastVerdict,
   startOfDayArgentina,
@@ -134,6 +135,9 @@ async function handleLabels() {
 }
 
 async function runNightly() {
+  if (isWorkingHours()) {
+    return console.log("La cola de la noche arrancó en horario laboral porque GitHub la demoró: queda para la noche siguiente.");
+  }
   for (const pull of await github.listOpenPulls()) {
     if (!labelsOf(pull).includes(LABELS.reviewable) || isFork(pull)) continue;
     console.log(`Cola de la noche: #${pull.number}`);
