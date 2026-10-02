@@ -12,7 +12,7 @@
         "properties": {
           "title": { "type": "string" },
           "severity": { "type": "string", "enum": ["BLOCK", "WARN", "INFO"] },
-          "category": { "type": "string", "enum": ["security", "logic", "contract", "convention", "scenario", "ticket"] },
+          "category": { "type": "string", "enum": ["security", "logic", "contract", "convention", "scenario", "ticket", "build"] },
           "file": { "type": "string" },
           "line": { "type": "integer" },
           "description": { "type": "string" },

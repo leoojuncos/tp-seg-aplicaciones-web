@@ -69,6 +69,12 @@ function contextSection(context) {
     "",
     files || "(ninguno)",
     "",
+    "## Archivos nuevos, borrados y con permisos cambiados",
+    "",
+    "Incluye los que no están en el diff, como `mvnw`. El número es el modo del archivo: `100755` es ejecutable y `100644` no.",
+    "",
+    fence(context.summary || "(ninguno)"),
+    "",
     `El diff completo del PR está en \`${context.diffFile}\`. El código del PR, en el commit revisado, está en el directorio de trabajo.`,
     "Cada línea del diff empieza con su número en el archivo del commit revisado (las líneas borradas no llevan número). En `line` va ese número, nunca la posición dentro del diff.",
   ];

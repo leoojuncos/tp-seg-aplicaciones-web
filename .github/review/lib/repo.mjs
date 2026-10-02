@@ -111,6 +111,7 @@ export function buildContext({ dir, inputs, sha, baseRef, baseName, pull, ticket
       return { path: path.join(" "), added, deleted };
     });
   const commits = git(dir, "log", "--format=%h %s", `${mergeBase}..${sha}`).split("\n").filter(Boolean);
+  const summary = git(dir, "diff", "--summary", "--find-renames", mergeBase, sha).trim();
   let deltaFile = null;
   if (previous?.sha && previous.sha !== sha && hasCommit(dir, previous.sha)) {
     deltaFile = join(inputs, "delta.diff");
@@ -128,6 +129,7 @@ export function buildContext({ dir, inputs, sha, baseRef, baseName, pull, ticket
     deltaFile,
     files,
     commits,
+    summary,
     agents: readOptional(join(dir, "AGENTS.md")),
     readme: readOptional(join(dir, "README.md")),
     pull,

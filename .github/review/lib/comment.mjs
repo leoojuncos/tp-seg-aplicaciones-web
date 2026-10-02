@@ -7,6 +7,7 @@ const CATEGORY = {
   convention: "convención",
   scenario: "escenario",
   ticket: "ticket",
+  build: "build",
 };
 
 const UPDATE = { persists: "se mantiene", resolved: "resuelto", justified: "justified" };
