@@ -9,6 +9,7 @@ import {
   countReviewNow,
   decideLabelEvent,
   failuresSinceVerdict,
+  isWorkingHours,
   lastEntry,
   lastVerdict,
   startOfDayArgentina,
@@ -30,9 +31,9 @@ const WORKFLOW = "review.yml";
 const repo = process.env.GITHUB_REPOSITORY;
 const owner = repo.split("/")[0];
 const github = createClient({ token: process.env.GITHUB_TOKEN, repo });
-const cap = Number(process.env.REVIEW_NOW_TOPE ?? 2);
+const cap = Number(process.env.REVIEW_NOW_CAP ?? 2);
 const work = join(process.env.RUNNER_TEMP ?? "/tmp", "review");
-const stateFile = join(work, "estado.json");
+const stateFile = join(work, "state.json");
 
 const labelsOf = (pull) => pull.labels.map((label) => label.name);
 const isFork = (pull) => pull.head.repo?.full_name !== repo;
@@ -96,7 +97,7 @@ async function readTicket(pull) {
   }
 }
 
-async function etiquetas() {
+async function handleLabels() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
   const number = event.pull_request.number;
   const pull = await github.getPull(number);
@@ -128,24 +129,27 @@ async function etiquetas() {
     await github.comment(number, renderRejected(decision.reason, cap));
   } else if (decision.type === "accept") {
     await github.removeLabel(number, LABELS.now);
-    await github.dispatch(WORKFLOW, process.env.DEFAULT_BRANCH, { pr: String(number), origen: "review-now" });
+    await github.dispatch(WORKFLOW, process.env.DEFAULT_BRANCH, { pr: String(number), origin: "review-now" });
     await github.comment(number, renderAccepted({ sender, counts: decision.counts, used: capUsed + 1, cap }));
   }
 }
 
-async function nocturna() {
+async function runNightly() {
+  if (isWorkingHours()) {
+    return console.log("La cola de la noche arrancó en horario laboral porque GitHub la demoró: queda para la noche siguiente.");
+  }
   for (const pull of await github.listOpenPulls()) {
     if (!labelsOf(pull).includes(LABELS.reviewable) || isFork(pull)) continue;
     console.log(`Cola de la noche: #${pull.number}`);
-    await github.dispatch(WORKFLOW, process.env.DEFAULT_BRANCH, { pr: String(pull.number), origen: "nocturna" });
+    await github.dispatch(WORKFLOW, process.env.DEFAULT_BRANCH, { pr: String(pull.number), origin: "nightly" });
   }
 }
 
-async function revisar({ pr, origen }) {
+async function runReview({ pr, origin }) {
   const number = Number(pr);
   const pull = await github.getPull(number);
   if (pull.state !== "open" || isFork(pull)) return console.log(`#${number}: está cerrado o viene de un fork`);
-  if (origen !== "manual" && !labelsOf(pull).includes(LABELS.reviewable)) {
+  if (origin !== "manual" && !labelsOf(pull).includes(LABELS.reviewable)) {
     return console.log(`#${number}: ya no tiene reviewable`);
   }
   saveState({ number, started: true });
@@ -159,7 +163,7 @@ async function revisar({ pr, origen }) {
   const ticket = await readTicket(pull);
   const context = buildContext({
     dir,
-    inputs: join(work, "entradas"),
+    inputs: join(work, "inputs"),
     sha,
     baseRef: "refs/review/base",
     baseName: pull.base.ref,
@@ -193,14 +197,14 @@ async function revisar({ pr, origen }) {
   saveState({ number, started: true, sha, done: true });
 }
 
-async function fallo({ pr }) {
+async function handleFailure({ pr }) {
   const state = loadState();
   const number = Number(pr);
   if (!state?.started || state.done) return console.log("No hay nada que limpiar");
   await github.removeLabel(number, LABELS.inReview);
   const history = botHistory(await github.listIssueComments(number));
   if (state.quota) {
-    if (lastEntry(history)?.kind !== "sin-cupo") await github.comment(number, renderNoQuota());
+    if (lastEntry(history)?.kind !== "no-quota") await github.comment(number, renderNoQuota());
     return;
   }
   const count = failuresSinceVerdict(history) + 1;
@@ -211,10 +215,10 @@ async function fallo({ pr }) {
   await github.comment(number, renderFailure({ sha: state.sha, count, owner }));
 }
 
-const commands = { etiquetas, nocturna, revisar, fallo };
+const commands = { labels: handleLabels, nightly: runNightly, review: runReview, failure: handleFailure };
 const { positionals, values } = parseArgs({
   allowPositionals: true,
-  options: { pr: { type: "string" }, origen: { type: "string", default: "manual" } },
+  options: { pr: { type: "string" }, origin: { type: "string", default: "manual" } },
 });
 const command = commands[positionals[0]];
 if (!command) {

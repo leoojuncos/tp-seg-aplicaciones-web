@@ -36,7 +36,7 @@ Los PRs los revisa un reviewer automático: Claude Opus, con una segunda opinió
 
 | Etiqueta | La pone | Qué pasa |
 | --- | --- | --- |
-| `reviewable` | cualquiera del equipo | El PR entra en la cola de la noche, que arranca alrededor de las 03:00 (hora argentina). |
+| `reviewable` | cualquiera del equipo | El PR entra en la cola de la noche, que arranca alrededor de las 03:00 (hora argentina). Si GitHub la demora hasta el horario laboral (9 a 17), queda para la noche siguiente. |
 | `review-now` | cualquiera del equipo, siempre junto con `reviewable` | La review corre en el momento. Leer la advertencia de abajo antes de usarla. |
 | `in-review` | el bot | Se está revisando. |
 | `approved` / `changes-requested` | el bot | Es el veredicto. El bot saca `reviewable`. |
@@ -51,7 +51,7 @@ Además del código, el reviewer lee el ticket de Jira que figura en el título 
 
 ### Cómo leer el veredicto
 
-Cada pasada deja un comentario con los hallazgos numerados (F1, F2…), su severidad y el `archivo:línea`.
+Cada pasada deja un comentario con los hallazgos: los que bloquean, numerados F1, F2…, y los informativos, I1, I2…. Cada uno trae su severidad, el `archivo:línea` y, cuando ayuda, el fragmento de código o una propuesta concreta. Al final aparecen los candidatos descartados, con su motivo.
 
 - `BLOCK` y `WARN` piden cambios. `INFO` no bloquea.
 - El veredicto vale para el commit revisado: un push después del `approved` saca la etiqueta.

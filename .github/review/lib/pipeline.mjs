@@ -2,11 +2,11 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { assembleVerdict } from "./state.mjs";
 import { EXTERNALS, QuotaError, askExternal, runClaude } from "./models.mjs";
-import { codeFor } from "./repo.mjs";
+import { codeFor, lineCount } from "./repo.mjs";
 
 const FINDERS = [
-  { prefix: "L", prompt: "logica", origin: "lógica" },
-  { prefix: "S", prompt: "seguridad", origin: "seguridad" },
+  { prefix: "L", prompt: "logic", origin: "lógica" },
+  { prefix: "S", prompt: "security", origin: "seguridad" },
 ];
 
 const read = (path) => readFileSync(fileURLToPath(new URL(`../${path}`, import.meta.url)), "utf8");
@@ -69,7 +69,14 @@ function contextSection(context) {
     "",
     files || "(ninguno)",
     "",
+    "## Archivos nuevos, borrados y con permisos cambiados",
+    "",
+    "Incluye los que no están en el diff, como `mvnw`. El número es el modo del archivo: `100755` es ejecutable y `100644` no.",
+    "",
+    fence(context.summary || "(ninguno)"),
+    "",
     `El diff completo del PR está en \`${context.diffFile}\`. El código del PR, en el commit revisado, está en el directorio de trabajo.`,
+    "Cada línea del diff empieza con su número en el archivo del commit revisado (las líneas borradas no llevan número). En `line` va ese número, nunca la posición dentro del diff.",
   ];
   if (context.deltaFile) {
     lines.push(`Los cambios desde la pasada anterior (\`${context.previous.sha.slice(0, 7)}\`) están en \`${context.deltaFile}\`.`);
@@ -100,7 +107,7 @@ function repliesSection(replies) {
 }
 
 function finderPrompt(finder, context) {
-  return [read("prompts/comun.md"), read(`prompts/${finder.prompt}.md`), read("prompts/busqueda.md"), contextSection(context), previousSection(context)]
+  return [read("prompts/common.md"), read(`prompts/${finder.prompt}.md`), read("prompts/search.md"), contextSection(context), previousSection(context)]
     .filter(Boolean)
     .join("\n\n");
 }
@@ -109,7 +116,7 @@ function verifierPrompt(context, candidates, open) {
   const listed = candidates.map(({ ref, origin, severity, category, file, line, title, description, evidence, confidence }) => ({
     ref, origin, severity, category, file, line, title, description, evidence, confidence,
   }));
-  const parts = [read("prompts/comun.md"), read("prompts/verificador.md"), contextSection(context), "# Candidatos", fence(JSON.stringify(listed, null, 2))];
+  const parts = [read("prompts/common.md"), read("prompts/verifier.md"), contextSection(context), "# Candidatos", fence(JSON.stringify(listed, null, 2))];
   if (open.length > 0) {
     parts.push("# Hallazgos abiertos de pasadas anteriores", fence(JSON.stringify(open, null, 2)));
     parts.push("# Respuestas en el PR desde la pasada anterior", repliesSection(context.replies));
@@ -131,7 +138,7 @@ function externalPrompt(candidate, check, code) {
     null,
     2,
   );
-  return read("prompts/externo.md").replace("{{FINDING}}", () => finding).replace("{{CODE}}", () => code);
+  return read("prompts/external.md").replace("{{FINDING}}", () => finding).replace("{{CODE}}", () => code);
 }
 
 async function withRetry(task) {
@@ -179,12 +186,11 @@ export async function runPipeline(context, settings) {
     ),
   );
   const candidates = batches.flatMap((batch, index) =>
-    batch.findings.map((finding, position) => ({
-      ...finding,
-      file: normalizePath(finding.file, context.dir),
-      ref: `${FINDERS[index].prefix}${position + 1}`,
-      origin: FINDERS[index].origin,
-    })),
+    batch.findings.map((finding, position) => {
+      const file = normalizePath(finding.file, context.dir);
+      const line = finding.line > 0 && finding.line <= lineCount(context, file) ? finding.line : 0;
+      return { ...finding, file, line, ref: `${FINDERS[index].prefix}${position + 1}`, origin: FINDERS[index].origin };
+    }),
   );
   console.log(`Candidatos: ${candidates.map((candidate) => `${candidate.ref} ${candidate.severity}`).join(", ") || "ninguno"}`);
   const open = (context.previous?.findings ?? []).filter((finding) => finding.status === "open");

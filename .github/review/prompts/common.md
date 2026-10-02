@@ -52,11 +52,14 @@ Estas verificaciones son obligatorias cuando aplican. Saltearlas es la causa tí
 
 Un candidato se descarta con evidencia, no con una etiqueta. "Es intencional", "es una mejora", "ya estaba antes" o "está fuera de alcance" no cierran nada solos: hace falta la prueba que los sostenga. La única excepción son las vulnerabilidades que lista `AGENTS.md`.
 
-Un refactor que no cambia el comportamiento observable no es un hallazgo. Tampoco lo son las preferencias sin justificación técnica ni lo obvio.
+Un refactor que no cambia el comportamiento observable no es un hallazgo. Tampoco lo son las preferencias sin justificación técnica, lo obvio, ni una convención que no está escrita en `AGENTS.md` o en el README.
 
 ## Cómo se escribe
 
 - `title`: corto, el problema en pocas palabras.
-- `description`: una o dos oraciones densas con el mecanismo o el dato, sin cronología ni "se evaluó X y se descartó".
-- `file`: relativo a la raíz del repo. `line`: la línea del problema.
+- `description`: una o dos oraciones densas, de unas 40 palabras como máximo, con el mecanismo o el dato medido. Sin cronología ni "se evaluó X y se descartó".
+- `file`: relativo a la raíz del repo. `line`: el número de línea en el archivo, el que figura al principio de cada línea del diff; nunca la posición dentro del diff.
 - Si el hallazgo es sobre los commits o sobre el título del PR, `file` va vacío y `line` en 0.
+- `snippet`: el fragmento de código que hace evidente el problema, de hasta 6 líneas y copiado tal cual. Solo cuando ayuda a verlo; si no, vacío.
+- `proposal`: una oración con el cambio concreto que lo resuelve, cuando hay uno claro; si no, vacío.
+- `proposal_code`: el código propuesto, de hasta 8 líneas, cuando la propuesta es código; si no, vacío.
