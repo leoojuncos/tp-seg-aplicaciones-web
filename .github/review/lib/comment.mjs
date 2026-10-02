@@ -13,10 +13,10 @@ const UPDATE = { persists: "se mantiene", resolved: "resuelto", justified: "just
 
 const REJECTIONS = {
   fork: () => "Los PRs que vienen de forks no se revisan. Se sacó `review-now`.",
-  "sin-reviewable": () =>
+  "missing-reviewable": () =>
     "`review-now` va siempre junto con `reviewable`. Se sacó la etiqueta: si de verdad no puede esperar a la noche, hay que poner las dos.",
-  "en-curso": () => "Este PR ya se está revisando. Se sacó `review-now`.",
-  tope: (cap) =>
+  "in-progress": () => "Este PR ya se está revisando. Se sacó `review-now`.",
+  cap: (cap) =>
     `Ya se usaron las ${cap} reviews inmediatas de hoy. Se sacó \`review-now\` y el PR queda en la cola de la noche.`,
 };
 
@@ -80,7 +80,7 @@ export function renderVerdict({ repo, sha, verdict, stale, externals, ticket }) 
   if (carried) parts.push(carried);
   parts.push(renderFooter(externals, verdict.discarded, ticket));
   parts.push(
-    marker("veredicto", {
+    marker("verdict", {
       sha,
       result: stale ? "stale" : verdict.result,
       nextId: verdict.nextId,
@@ -110,9 +110,9 @@ export function renderFailure({ sha, count, owner }) {
     count >= 2
       ? `${which} falló dos veces seguidas y quedó en \`review-failed\`. @${owner}, hay que mirarlo.`
       : `${which} falló (1 de 2). El PR queda en la cola de la noche.`;
-  return `${text}\n\n${marker("fallo", { sha: sha ?? null })}`;
+  return `${text}\n\n${marker("failure", { sha: sha ?? null })}`;
 }
 
 export function renderNoQuota() {
-  return `La cuenta de Claude se quedó sin cupo. La review queda en la cola de la noche.\n\n${marker("sin-cupo")}`;
+  return `La cuenta de Claude se quedó sin cupo. La review queda en la cola de la noche.\n\n${marker("no-quota")}`;
 }

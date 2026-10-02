@@ -10,6 +10,7 @@ export const LABELS = {
 };
 
 const MARKER = /<!-- review-bot:([a-z-]+) ([A-Za-z0-9+/=]*) -->/g;
+const LEGACY_KINDS = { veredicto: "verdict", fallo: "failure", "sin-cupo": "no-quota" };
 const SEVERITY_ORDER = { BLOCK: 0, WARN: 1, INFO: 2 };
 const CLARIFICATIONS_TITLE = /^\s*(?:#{1,6}\s*)?(?:\*\*|__)?\s*aclaraciones\s*:?\s*(?:\*\*|__)?\s*:?\s*$/i;
 const ANY_TITLE = /^\s*(?:#{1,6}\s+\S|(?:\*\*|__)[^*_]+(?:\*\*|__)\s*:?\s*$)/;
@@ -31,7 +32,10 @@ export function readMarkers(body) {
   const markers = [];
   for (const [, kind, payload] of (body ?? "").matchAll(MARKER)) {
     try {
-      markers.push({ kind, data: JSON.parse(Buffer.from(payload, "base64").toString("utf8")) });
+      markers.push({
+        kind: LEGACY_KINDS[kind] ?? kind,
+        data: JSON.parse(Buffer.from(payload, "base64").toString("utf8")),
+      });
     } catch {}
   }
   return markers;
@@ -45,7 +49,7 @@ export function botHistory(comments) {
 }
 
 export function lastVerdict(history) {
-  return history.findLast((entry) => entry.kind === "veredicto") ?? null;
+  return history.findLast((entry) => entry.kind === "verdict") ?? null;
 }
 
 export function lastEntry(history) {
@@ -54,7 +58,7 @@ export function lastEntry(history) {
 
 export function failuresSinceVerdict(history) {
   const verdict = lastVerdict(history);
-  return history.filter((entry) => entry.kind === "fallo" && (!verdict || entry.createdAt > verdict.createdAt)).length;
+  return history.filter((entry) => entry.kind === "failure" && (!verdict || entry.createdAt > verdict.createdAt)).length;
 }
 
 export function startOfDayArgentina(now = new Date()) {
@@ -75,10 +79,10 @@ export function decideLabelEvent({ action, label, labels, sender, owner, fork, s
   if (action !== "labeled" || ![LABELS.now, LABELS.reviewable].includes(label)) return { type: "ignore" };
   if (!labels.includes(LABELS.now)) return { type: "ignore" };
   if (fork) return { type: "reject", reason: "fork" };
-  if (!labels.includes(LABELS.reviewable)) return { type: "reject", reason: "sin-reviewable" };
-  if (labels.includes(LABELS.inReview)) return { type: "reject", reason: "en-curso" };
+  if (!labels.includes(LABELS.reviewable)) return { type: "reject", reason: "missing-reviewable" };
+  if (labels.includes(LABELS.inReview)) return { type: "reject", reason: "in-progress" };
   const counts = sender !== owner;
-  if (counts && capUsed >= cap) return { type: "reject", reason: "tope" };
+  if (counts && capUsed >= cap) return { type: "reject", reason: "cap" };
   return { type: "accept", counts };
 }
 
