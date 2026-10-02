@@ -12,6 +12,8 @@ Para cada candidato:
 6. Si repite a otro candidato o a un hallazgo de una pasada anterior, poné en `duplicate_of` la referencia del que queda (por ejemplo, `S2` o `F3`). Si no repite a ninguno, `duplicate_of` va vacío. Entre dos candidatos que son el mismo problema, el duplicado es el menos fundamentado.
 7. `reason`: una o dos oraciones con lo que decidió el veredicto.
 
+Un `INFO` tiene que ser accionable en este PR: un cambio concreto que valga la pena hacer ahora. Si es una preferencia sin una regla escrita en `AGENTS.md` o en el README, una observación general o un riesgo de un despliegue que el proyecto no tiene, respondé `no`.
+
 Para cada hallazgo abierto de una pasada anterior, mirá el código actual y las respuestas en el PR:
 
 - `resolved`: el código ya no tiene el problema.
