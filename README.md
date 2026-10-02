@@ -51,7 +51,7 @@ Además del código, el reviewer lee el ticket de Jira que figura en el título 
 
 ### Cómo leer el veredicto
 
-Cada pasada deja un comentario con los hallazgos numerados (F1, F2…), su severidad y el `archivo:línea`.
+Cada pasada deja un comentario con los hallazgos: los que bloquean, numerados F1, F2…, y los informativos, I1, I2…. Cada uno trae su severidad, el `archivo:línea` y, cuando ayuda, el fragmento de código o una propuesta concreta. Al final aparecen los candidatos descartados, con su motivo.
 
 - `BLOCK` y `WARN` piden cambios. `INFO` no bloquea.
 - El veredicto vale para el commit revisado: un push después del `approved` saca la etiqueta.

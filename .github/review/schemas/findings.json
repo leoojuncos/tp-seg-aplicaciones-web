@@ -8,7 +8,19 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["title", "severity", "category", "file", "line", "description", "evidence", "confidence"],
+        "required": [
+          "title",
+          "severity",
+          "category",
+          "file",
+          "line",
+          "description",
+          "evidence",
+          "confidence",
+          "snippet",
+          "proposal",
+          "proposal_code"
+        ],
         "properties": {
           "title": { "type": "string" },
           "severity": { "type": "string", "enum": ["BLOCK", "WARN", "INFO"] },
@@ -17,7 +29,10 @@
           "line": { "type": "integer" },
           "description": { "type": "string" },
           "evidence": { "type": "string" },
-          "confidence": { "type": "number" }
+          "confidence": { "type": "number" },
+          "snippet": { "type": "string" },
+          "proposal": { "type": "string" },
+          "proposal_code": { "type": "string" }
         }
       }
     }

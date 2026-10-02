@@ -96,10 +96,14 @@ export function consensus(votes) {
   return answered.length === 0 || answered.some((vote) => vote.verdict === "yes");
 }
 
+const TRACKED = ["id", "severity", "category", "title", "file", "line", "description", "status"];
+const tracked = (finding) => Object.fromEntries(TRACKED.map((key) => [key, finding[key]]));
+
 export function assembleVerdict({ previous, candidates, verification, votes }) {
   const checks = new Map(verification.candidates.map((check) => [check.ref, check]));
   const reviews = new Map(verification.previous.map((review) => [review.id, review]));
   let nextId = previous?.nextId ?? 1;
+  let nextInfoId = previous?.nextInfoId ?? 1;
 
   const carried = (previous?.findings ?? []).map((finding) => {
     if (finding.status !== "open") return { ...finding, update: null };
@@ -110,35 +114,41 @@ export function assembleVerdict({ previous, candidates, verification, votes }) {
     return { ...finding, status: review.status, update: { status: review.status, reason: review.reason } };
   });
 
-  let discarded = 0;
+  const discarded = [];
   const confirmed = [];
   for (const candidate of candidates) {
     const check = checks.get(candidate.ref);
     if (check?.duplicate_of) continue;
     if (check?.verdict !== "yes") {
-      discarded++;
+      discarded.push({ title: candidate.title, reason: check?.reason || "el verificador no lo confirmó" });
       continue;
     }
     if (check.severity !== "INFO" && !consensus(votes.get(candidate.ref) ?? [])) {
-      discarded++;
+      discarded.push({ title: candidate.title, reason: "los modelos externos que respondieron no lo confirmaron" });
       continue;
     }
     confirmed.push({ ...candidate, severity: check.severity });
   }
   confirmed.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
 
-  const added = confirmed.map((candidate) => ({
-    id: `F${nextId++}`,
-    severity: candidate.severity,
-    category: candidate.category,
-    title: candidate.title,
-    file: candidate.file,
-    line: candidate.line,
-    description: candidate.description,
-    status: candidate.severity === "INFO" ? "info" : "open",
-  }));
+  const added = confirmed.map((candidate) => {
+    const info = candidate.severity === "INFO";
+    return {
+      id: info ? `I${nextInfoId++}` : `F${nextId++}`,
+      severity: candidate.severity,
+      category: candidate.category,
+      title: candidate.title,
+      file: candidate.file,
+      line: candidate.line,
+      description: candidate.description,
+      snippet: candidate.snippet ?? "",
+      proposal: candidate.proposal ?? "",
+      proposal_code: candidate.proposal_code ?? "",
+      status: info ? "info" : "open",
+    };
+  });
 
-  const findings = [...carried.map(({ update, ...finding }) => finding), ...added];
+  const findings = [...carried.map(({ update, ...finding }) => tracked(finding)), ...added.map(tracked)];
   const open = findings.filter((finding) => finding.status === "open");
   return {
     added,
@@ -146,6 +156,7 @@ export function assembleVerdict({ previous, candidates, verification, votes }) {
     open,
     discarded,
     nextId,
+    nextInfoId,
     findings,
     result: open.length > 0 ? "changes-requested" : "approved",
   };

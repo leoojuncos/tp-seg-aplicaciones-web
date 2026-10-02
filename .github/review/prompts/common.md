@@ -57,6 +57,9 @@ Un refactor que no cambia el comportamiento observable no es un hallazgo. Tampoc
 ## Cómo se escribe
 
 - `title`: corto, el problema en pocas palabras.
-- `description`: una o dos oraciones densas con el mecanismo o el dato, sin cronología ni "se evaluó X y se descartó".
+- `description`: una o dos oraciones densas, de unas 40 palabras como máximo, con el mecanismo o el dato medido. Sin cronología ni "se evaluó X y se descartó".
 - `file`: relativo a la raíz del repo. `line`: el número de línea en el archivo, el que figura al principio de cada línea del diff; nunca la posición dentro del diff.
 - Si el hallazgo es sobre los commits o sobre el título del PR, `file` va vacío y `line` en 0.
+- `snippet`: el fragmento de código que hace evidente el problema, de hasta 6 líneas y copiado tal cual. Solo cuando ayuda a verlo; si no, vacío.
+- `proposal`: una oración con el cambio concreto que lo resuelve, cuando hay uno claro; si no, vacío.
+- `proposal_code`: el código propuesto, de hasta 8 líneas, cuando la propuesta es código; si no, vacío.

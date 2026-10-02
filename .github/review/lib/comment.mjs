@@ -24,6 +24,30 @@ const REJECTIONS = {
 const join = (items) => (items.length <= 1 ? items.join("") : `${items.slice(0, -1).join(", ")} y ${items.at(-1)}`);
 const short = (sha) => `\`${sha.slice(0, 7)}\``;
 
+const LANGUAGES = {
+  java: "java",
+  yml: "yaml",
+  yaml: "yaml",
+  js: "js",
+  mjs: "js",
+  jsx: "jsx",
+  ts: "ts",
+  tsx: "tsx",
+  xml: "xml",
+  json: "json",
+  sh: "sh",
+  sql: "sql",
+  properties: "properties",
+  md: "md",
+};
+
+function codeBlock(code, file) {
+  const extension = (file ?? "").split(".").pop().toLowerCase();
+  const longest = Math.max(2, ...[...code.matchAll(/`+/g)].map((match) => match[0].length));
+  const marks = "`".repeat(longest + 1);
+  return `${marks}${LANGUAGES[extension] ?? ""}\n${code.replace(/\n+$/, "")}\n${marks}`;
+}
+
 function location(repo, sha, finding) {
   if (!finding.file) return "";
   const path = finding.file.split("/").map(encodeURIComponent).join("/");
@@ -34,7 +58,14 @@ function location(repo, sha, finding) {
 
 function renderFinding(repo, sha, finding) {
   const category = CATEGORY[finding.category] ?? finding.category;
-  return `**${finding.id} · ${finding.severity} · ${category}** — ${finding.title}\n${location(repo, sha, finding)}${finding.description}`;
+  const lines = [
+    `**${finding.id} · ${finding.severity} · ${category}** — ${finding.title}`,
+    `${location(repo, sha, finding)}${finding.description}`,
+  ];
+  if (finding.snippet) lines.push(codeBlock(finding.snippet, finding.file));
+  if (finding.proposal) lines.push(`Propuesta: ${finding.proposal}`);
+  if (finding.proposal_code) lines.push(codeBlock(finding.proposal_code, finding.file));
+  return lines.join("\n");
 }
 
 function heading(result, stale, sha) {
@@ -44,11 +75,15 @@ function heading(result, stale, sha) {
 }
 
 function summary(verdict, stale) {
-  const block = verdict.open.filter((finding) => finding.severity === "BLOCK").length;
-  const warn = verdict.open.filter((finding) => finding.severity === "WARN").length;
-  const status = block + warn === 0 ? "No queda nada que bloquee." : `Quedan abiertos ${block} BLOCK y ${warn} WARN.`;
-  if (!stale) return status;
-  return `Llegaron commits mientras se revisaba: el veredicto no se aplica y el PR vuelve a la cola de la noche. ${status}`;
+  const count = (severity, findings) => findings.filter((finding) => finding.severity === severity).length;
+  const counts = `${count("BLOCK", verdict.open)} BLOCK · ${count("WARN", verdict.open)} WARN · ${count("INFO", verdict.added)} INFO`;
+  if (!stale) return counts;
+  return `Llegaron commits mientras se revisaba: el veredicto no se aplica y el PR vuelve a la cola de la noche.\n\n${counts}`;
+}
+
+function renderDiscarded(discarded) {
+  if (discarded.length === 0) return null;
+  return `**Descartados**\n${discarded.map((item) => `- ${item.title}: ${item.reason}`).join("\n")}`;
 }
 
 function renderCarried(carried) {
@@ -61,16 +96,13 @@ function renderCarried(carried) {
   return `**De pasadas anteriores**\n${items.join("\n")}`;
 }
 
-function renderFooter(externals, discarded, ticket) {
+function renderFooter(externals, ticket) {
   const voted = ["Opus", ...externals.filter((external) => external.status === "ok").map((external) => external.name)];
   const silent = externals.filter((external) => external.status === "failed").map((external) => external.name);
   let text = voted.length === 1 ? "Verificó Opus" : `Verificaron ${join(voted)}`;
   if (silent.length > 0) text += `; ${join(silent)} no ${silent.length === 1 ? "respondió" : "respondieron"}`;
   if (ticket?.status === "ok") text += ` · leyó ${ticket.key}`;
   if (ticket?.status === "failed") text += ` · no pudo leer ${ticket.key}`;
-  if (discarded > 0) {
-    text += ` · ${discarded} ${discarded === 1 ? "candidato descartado" : "candidatos descartados"} en la verificación`;
-  }
   return `<sub>${text}.</sub>`;
 }
 
@@ -79,12 +111,15 @@ export function renderVerdict({ repo, sha, verdict, stale, externals, ticket }) 
   parts.push(...verdict.added.map((finding) => renderFinding(repo, sha, finding)));
   const carried = renderCarried(verdict.carried);
   if (carried) parts.push(carried);
-  parts.push(renderFooter(externals, verdict.discarded, ticket));
+  const discarded = renderDiscarded(verdict.discarded);
+  if (discarded) parts.push(discarded);
+  parts.push(renderFooter(externals, ticket));
   parts.push(
     marker("verdict", {
       sha,
       result: stale ? "stale" : verdict.result,
       nextId: verdict.nextId,
+      nextInfoId: verdict.nextInfoId,
       findings: verdict.findings,
     }),
   );
