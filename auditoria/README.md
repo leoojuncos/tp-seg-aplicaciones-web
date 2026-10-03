@@ -27,7 +27,7 @@ docker run -d --name sgm-postgres -e POSTGRES_USER=sgm -e POSTGRES_PASSWORD=sgm 
 docker run -d --name sgm-rabbit -e RABBITMQ_DEFAULT_USER=sgm -e RABBITMQ_DEFAULT_PASS=sgm -p 127.0.0.1:5672:5672 -p 127.0.0.1:15672:15672 rabbitmq:3.13-management
 ```
 
-> The monolito and auditoria share the same Postgres and RabbitMQ, so if you already have them up for the monolito you don't need to start them again.
+> The monolith and auditoria share the same Postgres and RabbitMQ, so if you already have them up for the monolith you don't need to start them again.
 
 Then start the app:
 
@@ -35,7 +35,7 @@ Then start the app:
 ./mvnw spring-boot:run      # or mvnw.cmd spring-boot:run on Windows cmd/PowerShell
 ```
 
-The app connects using these defaults (overridable via env vars — see `src/main/resources/application.yml`): DB at `localhost:5432/sgm` (user/password `sgm`), RabbitMQ at `localhost:5672` (user/password `sgm`), app on port **`8081`** (the monolito uses `8080`).
+The app connects using these defaults (overridable via env vars — see `src/main/resources/application.yml`): DB at `localhost:5432/sgm` (user/password `sgm`), RabbitMQ at `localhost:5672` (user/password `sgm`), app on port **`8081`** (the monolith uses `8080`).
 
 On startup, the logs should show `DB OK` and `RabbitMQ OK`, and the queue `auditoria.eventos` gets declared on the broker. Verify the health endpoint with:
 

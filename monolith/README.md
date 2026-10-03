@@ -1,6 +1,6 @@
-# Monolito
+# Monolith
 
-Spring Boot monolith (`monolito`) for the SGM (Seguridad, Administracion, Tesoreria, VEP), per [TPS-9](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-9).
+Spring Boot monolith (`monolith`) for the SGM (Seguridad, Administracion, Tesoreria, VEP), per [TPS-9](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-9).
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ Spring Boot monolith (`monolito`) for the SGM (Seguridad, Administracion, Tesore
 
 ## Opening the project in IntelliJ
 
-1. **File > Open...** and select the `monolito/` folder (or `monolito/pom.xml` directly — IntelliJ will offer to open it as a project).
+1. **File > Open...** and select the `monolith/` folder (or `monolith/pom.xml` directly — IntelliJ will offer to open it as a project).
 2. IntelliJ detects it as a Maven project and imports the dependencies automatically. If it doesn't prompt, right-click `pom.xml` > **Maven > Reload project**.
 3. **Set the project SDK to 21**: **File > Project Structure > Project** — set *SDK* and *Language level* to 21. If no JDK 21 is listed, click **Add SDK > Download JDK...** (or point it at one already installed on your machine) from that same dropdown.
 4. **Use the Maven Wrapper** instead of a bundled Maven version: **Settings > Build Tools > Maven** — set *Maven home path* to **Use Maven wrapper**. This keeps everyone on the same Maven version declared in `.mvn/wrapper/maven-wrapper.properties`.
@@ -22,27 +22,27 @@ Nothing in the project depends on IntelliJ: it's a plain Maven project, so any e
 
 In every case:
 
-- **Open the `monolito/` folder as the workspace root**, not the repo root. Java tooling looks for `pom.xml` at the root of the workspace.
+- **Open the `monolith/` folder as the workspace root**, not the repo root. Java tooling looks for `pom.xml` at the root of the workspace.
 - **Have a JDK 21 or newer installed** and visible to the editor (on the `PATH`, or via `JAVA_HOME`). Maven compiles for Java 21 regardless of which JDK runs it.
 - **Starting the app from the terminal always works**, whatever the editor: `./mvnw spring-boot:run` (or `mvnw.cmd spring-boot:run` on Windows cmd/PowerShell). Your editor's integrated terminal is fine.
 
 ### VS Code
 
 1. Install the **Extension Pack for Java** (`vscjava.vscode-java-pack`). Optionally also install the **Spring Boot Extension Pack** (`vmware.vscode-boot-dev-pack`), which adds a Spring Boot Dashboard with start/stop buttons for the app.
-2. Open the `monolito/` folder. The Java extension detects `pom.xml` and imports the project; the first import takes a minute (progress shows in the status bar).
+2. Open the `monolith/` folder. The Java extension detects `pom.xml` and imports the project; the first import takes a minute (progress shows in the status bar).
 3. If you have several JDKs installed and VS Code picks the wrong one, set `java.jdt.ls.java.home` (the JDK the extension itself runs on) and/or `java.configuration.runtimes` (the JDK used to run the project) in your user settings.
 4. Open `MonolithApplication.java` and click **Run** (or **Debug**) above the `main` method.
 
 ### Zed
 
 1. Install the **Java** extension (**Extensions** panel, search "Java"). It downloads and runs the same Java language server VS Code uses, which imports the Maven project from `pom.xml`.
-2. Open the `monolito/` folder.
+2. Open the `monolith/` folder.
 3. Start the app from Zed's terminal with `./mvnw spring-boot:run`. To get a reusable command instead, add a task in `.zed/tasks.json` (not committed; it's personal config) and run it with **task: spawn**:
 
    ```json
    [
      {
-       "label": "Run monolito",
+       "label": "Run monolith",
        "command": "./mvnw spring-boot:run",
        "cwd": "$ZED_WORKTREE_ROOT"
      }

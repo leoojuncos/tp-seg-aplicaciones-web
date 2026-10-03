@@ -12,9 +12,9 @@
     </parent>
 
     <groupId>ar.edu.utn.frba.tps</groupId>
-    <artifactId>monolito</artifactId>
+    <artifactId>monolith</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>monolito</name>
+    <name>monolith</name>
     <description>Monolito del SGM (Seguridad, Administracion, Tesoreria, VEP) - TP Seguridad en Aplicaciones Web</description>
     <packaging>jar</packaging>
 
