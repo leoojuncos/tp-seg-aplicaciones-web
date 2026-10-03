@@ -1,0 +1,11 @@
+# Normalizar saltos de linea en el repo (LF), independiente del SO de cada uno.
+* text=auto eol=lf
+
+# El Maven Wrapper se ejecuta con /bin/sh en el CI (Ubuntu): tiene que ser LF si o si.
+mvnw text eol=lf
+
+# Scripts batch de Windows: CRLF.
+*.cmd text eol=crlf
+
+# Binarios: sin conversion de saltos de linea.
+*.jar binary
