@@ -28,7 +28,28 @@ Las decisiones de arquitectura, stack y contratos están registradas y justifica
 
 ## Puesta en marcha
 
-Pendiente: se documenta cuando esté el `docker-compose` (ticket de Infraestructura).
+Hace falta Docker con Compose. Desde la raíz del repo:
+
+```bash
+docker compose up -d --build
+```
+
+Levanta Postgres, RabbitMQ, el monolito y Auditoría. Las apps arrancan cuando Postgres terminó de inicializar la base y RabbitMQ acepta conexiones. `--build` va siempre: sin él, Compose reusa las imágenes anteriores y no toma los cambios del código.
+
+Los puertos se publican solo en `127.0.0.1`:
+
+| Servicio | Dirección |
+| --- | --- |
+| Monolito | http://localhost:8080/api/health |
+| Auditoría | http://localhost:8081/api/health |
+| UI de RabbitMQ | http://localhost:15672 (usuario y contraseña `sgm`) |
+| Postgres | `localhost:5432`, base `sgm` (usuario y contraseña `sgm`) |
+
+En el primer arranque, Postgres corre los scripts de `db/init/`. `docker compose down -v` borra la base: el próximo `up` la vuelve a crear desde esos scripts.
+
+Para correr una app desde el IDE, levantar solo Postgres y RabbitMQ con `docker compose up -d postgres rabbitmq`. El README de cada servicio lo explica.
+
+Si siguen corriendo los contenedores `sgm-postgres` y `sgm-rabbit` que indicaban antes los README de los servicios, ocupan los mismos puertos y el `up` falla. Se borran con `docker rm -f sgm-postgres sgm-rabbit`.
 
 ## Review automática de PRs
 
