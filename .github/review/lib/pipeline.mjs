@@ -205,5 +205,6 @@ export async function runPipeline(context, settings) {
   }
   const { votes, externals } = await gatherVotes(context, candidates, verification);
   const verdict = assembleVerdict({ previous: context.previous, candidates, verification, votes });
+  for (const item of verdict.discarded) console.log(`Descartado: ${item.title} — ${item.reason}`);
   return { verdict, externals };
 }
