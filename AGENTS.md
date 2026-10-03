@@ -75,8 +75,13 @@ El SGM es una aplicación didáctica: corre solo en local y es deliberadamente v
 
 - Una vulnerabilidad de la lista no se corrige, salvo en el cambio que implementa su mitigación.
 - Una vulnerabilidad que no está en la lista es un defecto, aunque parezca intencional: se corrige o, con el acuerdo del equipo, se suma a la lista.
-- Sumar, sacar o cambiar una entrada es una decisión del escenario: va en su propio commit y se explica en la descripción del PR.
+- Sumar, sacar o cambiar una entrada es una decisión del escenario: va en su propio commit y se explica en la sección `Aclaraciones` de la descripción del PR.
 - Cada entrada dice qué vulnerabilidad es y su categoría del OWASP Top 10, dónde está (módulo y endpoint o componente), qué muestra en la demo y cómo se mitiga.
 - Los pasos de explotación y los payloads de la demo no van acá ni en ningún archivo que carguen los agentes. Este archivo entra en el contexto de cada sesión, y ese contenido puede activar los filtros de seguridad del modelo y cortar la sesión.
 
-Pendiente: cargar las cuatro vulnerabilidades de la cadena.
+| Paso | Vulnerabilidad | Categoría del OWASP Top 10 | Dónde | Qué muestra en la demo | Mitigación |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Login con una consulta armada sin parámetros | Injection | Seguridad: el endpoint de login del monolito. | La verificación de credenciales arma la consulta con los datos del formulario, y eso permite entrar sin conocer la contraseña. Es el único punto del sistema con ese patrón. | Consulta parametrizada y validación server-side. |
+| 2 | Sesión en una cookie base64 sin firma, con permisos que el back no vuelve a derivar | Broken Access Control | Seguridad: la emisión y la lectura de la cookie, y el gating de módulos. El selector de módulos del listado de Auditoría deja ver que existe Tesorería. | El back confía en los permisos que trae la cookie y, como no está firmada, se pueden cambiar para habilitar módulos que el usuario no tiene asignados. | Firmar la sesión o mantenerla server-side, y derivar los permisos a partir de la identidad. |
+| 3 | El Diagnóstico de integraciones expone configuración sensible | Security Misconfiguration | Tesorería: la sección Diagnóstico. | La respuesta incluye la URL del módulo messaging y la credencial de su cuenta técnica de solo lectura. | No exponer secretos ni configuración interna en las respuestas. |
+| 4 | Recuperación débil de la cuenta técnica y baja del evento de auditoría pendiente | Identification and Authentication Failures | El módulo messaging del monolito: la recuperación de la cuenta técnica y la baja de pendientes. La demora del consumer de Auditoría abre la ventana. | La recuperación no pide un segundo secreto ni verifica al solicitante, y la sesión que devuelve permite dar de baja un evento pendiente antes de que Auditoría lo registre. | Verificación fuerte de identidad y segundo factor en la recuperación, mínimo privilegio para la cuenta técnica, autorización estricta sobre los pendientes y un registro de auditoría append-only. |

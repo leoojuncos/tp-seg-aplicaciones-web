@@ -32,26 +32,26 @@ Pendiente: se documenta cuando esté el `docker-compose` (ticket de Infraestruct
 
 ## Review automática de PRs
 
-Los PRs los revisa un reviewer automático: Claude Opus, con una segunda opinión de Gemini y MiniMax sobre los hallazgos que bloquean. La review se pide con etiquetas.
+Los PRs los revisa un reviewer automático: Claude Opus, con una segunda opinión de Gemini y MiniMax sobre los hallazgos que piden cambios. La review se pide con etiquetas.
 
 | Etiqueta | La pone | Qué pasa |
 | --- | --- | --- |
 | `reviewable` | cualquiera del equipo | El PR entra en la cola de la noche, que arranca alrededor de las 03:00 (hora argentina). Si GitHub la demora hasta el horario laboral (9 a 17), queda para la noche siguiente. |
-| `review-now` | cualquiera del equipo, siempre junto con `reviewable` | La review corre en el momento. Leer la advertencia de abajo antes de usarla. |
+| `review-now` | cualquiera del equipo, siempre junto con `reviewable` | La review corre en el momento. El bot saca la etiqueta enseguida y comenta si arrancó o por qué no. Leer la advertencia de abajo antes de usarla. |
 | `in-review` | el bot | Se está revisando. |
 | `approved` / `changes-requested` | el bot | Es el veredicto. El bot saca `reviewable`. |
-| `review-failed` | el bot | La review falló dos veces seguidas: avisar a @leoojuncos. |
+| `review-failed` | el bot | La review falló dos veces seguidas y el PR salió de la cola: avisar a @leoojuncos. |
 
 > [!WARNING]
-> **`review-now` es SOLO para algo MUY importante que no puede esperar a la noche.** Cada review inmediata gasta en el momento el cupo de Claude de @leoojuncos, en pleno horario de trabajo. Hay un tope de 2 por día para todo el equipo: pasado el tope, el bot saca la etiqueta y el PR queda para la noche. Si no está claro que sea urgente, no lo es: usar `reviewable`.
+> **`review-now` es SOLO para algo MUY importante que no puede esperar a la noche.** Cada review inmediata gasta en el momento el cupo de Claude de @leoojuncos, en pleno horario de trabajo. Hay un tope de 2 por día para todo el equipo (las que pide @leoojuncos no cuentan): pasado el tope, el bot saca la etiqueta y el PR queda para la noche. Si no está claro que sea urgente, no lo es: usar `reviewable`.
 
 ### Qué mira el reviewer
 
-Además del código, el reviewer lee el ticket de Jira que figura en el título del PR (`TPS-…`) y, de la descripción, solo la sección `Aclaraciones`. Ahí van los desvíos respecto del ticket, con su motivo: algo que el ticket pide y no se hizo, o algo que se hizo y el ticket no pide. Un desvío explicado en `Aclaraciones` no se marca; uno sin explicar, sí. El resto de la descripción no se lee.
+Además del código, el reviewer lee el ticket de Jira que figura en el título del PR (`TPS-…`) y, de la descripción, solo la sección `Aclaraciones`. Ahí van los desvíos respecto del ticket, con su motivo: algo que el ticket pide y no se hizo, o algo que se hizo y el ticket no pide. Un desvío explicado en `Aclaraciones` no se marca; uno sin explicar, sí. También va ahí el motivo de un cambio a la lista de vulnerabilidades. El resto de la descripción no se lee.
 
 ### Cómo leer el veredicto
 
-Cada pasada deja un comentario con los hallazgos: los que bloquean, numerados F1, F2…, y los informativos, I1, I2…. Cada uno trae su severidad, el `archivo:línea` y, cuando ayuda, el fragmento de código o una propuesta concreta. Al final aparecen los candidatos descartados, con su motivo.
+Cada pasada deja un comentario con los hallazgos: los que piden cambios, numerados F1, F2…, y los informativos, I1, I2…. Cada uno trae su severidad, el `archivo:línea` y, cuando ayuda, el fragmento de código o una propuesta concreta.
 
 - `BLOCK` y `WARN` piden cambios. `INFO` no bloquea.
 - El veredicto vale para el commit revisado: un push después del `approved` saca la etiqueta.
@@ -61,8 +61,8 @@ Cada pasada deja un comentario con los hallazgos: los que bloquean, numerados F1
 
 1. Corregir lo que corresponda, con amend o fixup como indica `AGENTS.md`.
 2. Si un hallazgo no corresponde, responder en el PR con su número y la razón. Si la razón se sostiene, la pasada siguiente lo marca `justified` y deja de bloquear.
-3. Volver a poner `reviewable`. La pasada siguiente corre a la noche y no repite lo ya resuelto o justificado.
+3. Volver a poner `reviewable`. La pasada siguiente corre a la noche, o en el momento con `review-now` (misma advertencia, mismo tope), y no repite lo ya resuelto o justificado.
 
-Las vulnerabilidades buscadas del escenario están listadas en `AGENTS.md`: el reviewer no las marca como defecto, pero avisa si un cambio las rompe o si aparece otra que no está en la lista.
+Las vulnerabilidades buscadas del escenario están listadas en `AGENTS.md`: el reviewer no las marca como defecto. Sí marca un cambio que altera una sin ser su mitigación, una mitigación que deja alguna ruta sin cubrir y cualquier cambio a la lista. Una vulnerabilidad que no está en la lista es un defecto y pide cambios, aunque parezca intencional.
 
 Solo se revisan PRs de ramas de este repo, no de forks.
