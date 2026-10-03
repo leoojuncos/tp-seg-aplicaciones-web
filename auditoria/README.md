@@ -7,7 +7,7 @@ This is the initial skeleton: the app builds, starts, exposes a health endpoint 
 ## Prerequisites
 
 - **JDK 21** (the project targets Java 21; make sure your IDE has one configured).
-- **Docker**, to run Postgres and RabbitMQ locally. The shared `docker-compose.yml` for the whole system ([TPS-11](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-11)) doesn't exist yet, so for now start them standalone (see [Running locally](#running-locally)).
+- **Docker**, to run Postgres and RabbitMQ locally with the repo's `docker-compose.yml` (see [Running locally](#running-locally)).
 - You do **not** need Maven installed — the repo commits the Maven Wrapper (`mvnw` / `mvnw.cmd`), which downloads the right Maven version on first run.
 
 ## Opening the project
@@ -20,12 +20,13 @@ It's a plain Maven project, so any editor works. **Open the `auditoria/` folder 
 
 ## Running locally
 
-Postgres and RabbitMQ aren't containerized together yet (that's TPS-11), so start them standalone first. The ports are bound to `127.0.0.1` so they're not exposed to the rest of the network:
+Start Postgres and RabbitMQ from the repo root, with the shared `docker-compose.yml`. The ports are bound to `127.0.0.1` so they're not exposed to the rest of the network:
 
 ```bash
-docker run -d --name sgm-postgres -e POSTGRES_USER=sgm -e POSTGRES_PASSWORD=sgm -e POSTGRES_DB=sgm -p 127.0.0.1:5432:5432 postgres:16
-docker run -d --name sgm-rabbit -e RABBITMQ_DEFAULT_USER=sgm -e RABBITMQ_DEFAULT_PASS=sgm -p 127.0.0.1:5672:5672 -p 127.0.0.1:15672:15672 rabbitmq:3.13-management
+docker compose up -d postgres rabbitmq
 ```
+
+Start only those two: a plain `docker compose up` also runs auditoria in a container, which takes port `8081`. See [Puesta en marcha](../README.md#puesta-en-marcha) in the root README for the whole system.
 
 > The monolith and auditoria share the same Postgres and RabbitMQ, so if you already have them up for the monolith you don't need to start them again.
 
