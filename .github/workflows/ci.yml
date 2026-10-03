@@ -8,14 +8,14 @@ jobs:
     name: Detectar qué servicios existen
     runs-on: ubuntu-latest
     outputs:
-      monolito: ${{ steps.detectar.outputs.monolito }}
+      monolith: ${{ steps.detectar.outputs.monolith }}
       auditoria: ${{ steps.detectar.outputs.auditoria }}
     steps:
       - uses: actions/checkout@v7
 
       - id: detectar
         run: |
-          for servicio in monolito auditoria; do
+          for servicio in monolith auditoria; do
             if [ -f "$servicio/pom.xml" ]; then
               echo "$servicio=true" >> "$GITHUB_OUTPUT"
             else
@@ -24,10 +24,10 @@ jobs:
             fi
           done
 
-  monolito:
+  monolith:
     name: Monolito compila y arranca
     needs: detectar
-    if: needs.detectar.outputs.monolito == 'true'
+    if: needs.detectar.outputs.monolith == 'true'
     runs-on: ubuntu-latest
 
     services:
@@ -59,7 +59,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: monolito
+        working-directory: monolith
 
     steps:
       - uses: actions/checkout@v7
@@ -75,7 +75,7 @@ jobs:
 
       - name: Levantar el monolito
         run: |
-          java -jar target/monolito-*.jar > app.log 2>&1 &
+          java -jar target/monolith-*.jar > app.log 2>&1 &
           echo $! > app.pid
 
       - name: Esperar a que /api/health responda 200
