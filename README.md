@@ -47,7 +47,7 @@ Los PRs los revisa un reviewer automático: Claude Opus, con una segunda opinió
 
 ### Qué mira el reviewer
 
-Además del código, el reviewer lee el ticket de Jira que figura en el título del PR (`TPS-…`) y, de la descripción, solo la sección `Aclaraciones`. Ahí van los desvíos respecto del ticket, con su motivo: algo que el ticket pide y no se hizo, o algo que se hizo y el ticket no pide. Un desvío explicado en `Aclaraciones` no se marca; uno sin explicar, sí. El resto de la descripción no se lee.
+Además del código, el reviewer lee el ticket de Jira que figura en el título del PR (`TPS-…`) y, de la descripción, solo la sección `Aclaraciones`. Ahí van los desvíos respecto del ticket, con su motivo: algo que el ticket pide y no se hizo, o algo que se hizo y el ticket no pide. Un desvío explicado en `Aclaraciones` no se marca; uno sin explicar, sí. También va ahí el motivo de un cambio a la lista de vulnerabilidades. El resto de la descripción no se lee.
 
 ### Cómo leer el veredicto
 

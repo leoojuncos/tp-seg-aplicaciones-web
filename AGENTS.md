@@ -75,7 +75,7 @@ El SGM es una aplicación didáctica: corre solo en local y es deliberadamente v
 
 - Una vulnerabilidad de la lista no se corrige, salvo en el cambio que implementa su mitigación.
 - Una vulnerabilidad que no está en la lista es un defecto, aunque parezca intencional: se corrige o, con el acuerdo del equipo, se suma a la lista.
-- Sumar, sacar o cambiar una entrada es una decisión del escenario: va en su propio commit y se explica en la descripción del PR.
+- Sumar, sacar o cambiar una entrada es una decisión del escenario: va en su propio commit y se explica en la sección `Aclaraciones` de la descripción del PR.
 - Cada entrada dice qué vulnerabilidad es y su categoría del OWASP Top 10, dónde está (módulo y endpoint o componente), qué muestra en la demo y cómo se mitiga.
 - Los pasos de explotación y los payloads de la demo no van acá ni en ningún archivo que carguen los agentes. Este archivo entra en el contexto de cada sesión, y ese contenido puede activar los filtros de seguridad del modelo y cortar la sesión.
 
