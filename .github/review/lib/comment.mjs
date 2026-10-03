@@ -81,11 +81,6 @@ function summary(verdict, stale) {
   return `Llegaron commits mientras se revisaba: el veredicto no se aplica y el PR vuelve a la cola de la noche.\n\n${counts}`;
 }
 
-function renderDiscarded(discarded) {
-  if (discarded.length === 0) return null;
-  return `**Descartados**\n${discarded.map((item) => `- ${item.title}: ${item.reason}`).join("\n")}`;
-}
-
 function renderCarried(carried) {
   const updated = carried.filter((finding) => finding.update);
   if (updated.length === 0) return null;
@@ -111,8 +106,6 @@ export function renderVerdict({ repo, sha, verdict, stale, externals, ticket }) 
   parts.push(...verdict.added.map((finding) => renderFinding(repo, sha, finding)));
   const carried = renderCarried(verdict.carried);
   if (carried) parts.push(carried);
-  const discarded = renderDiscarded(verdict.discarded);
-  if (discarded) parts.push(discarded);
   parts.push(renderFooter(externals, ticket));
   parts.push(
     marker("verdict", {
