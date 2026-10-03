@@ -1,0 +1,69 @@
+name: sgm
+
+x-connections: &connections
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: sgm
+  DB_USER: sgm
+  DB_PASSWORD: sgm
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: sgm
+  RABBITMQ_PASSWORD: sgm
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: sgm
+      POSTGRES_USER: sgm
+      POSTGRES_PASSWORD: sgm
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "sgm", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    environment:
+      RABBITMQ_DEFAULT_USER: sgm
+      RABBITMQ_DEFAULT_PASS: sgm
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  monolith:
+    build: ./monolith
+    environment: *connections
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  auditoria:
+    build: ./auditoria
+    environment: *connections
+    ports:
+      - "127.0.0.1:8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
