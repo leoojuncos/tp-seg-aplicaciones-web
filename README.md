@@ -59,7 +59,7 @@ Los PRs los revisa un reviewer automático: Claude Opus, con una segunda opinió
 | --- | --- | --- |
 | `reviewable` | cualquiera del equipo | El PR entra en la cola de la noche, que arranca alrededor de las 03:00 (hora argentina). Si GitHub la demora hasta el horario laboral (9 a 17), queda para la noche siguiente. |
 | `review-now` | cualquiera del equipo, siempre junto con `reviewable` | La review corre en el momento. El bot saca la etiqueta enseguida y comenta si arrancó o por qué no. Leer la advertencia de abajo antes de usarla. |
-| `in-review` | el bot | Se está revisando. |
+| `in-review` | el bot | Se está revisando. `reviewable` sigue puesto hasta el veredicto: si la review falla o se pushea mientras corre, el PR sigue en la cola. La cola de la noche no lanza otra review para un PR que ya se está revisando. |
 | `approved` / `changes-requested` | el bot | Es el veredicto. El bot saca `reviewable`. |
 | `review-failed` | el bot | La review falló dos veces seguidas y el PR salió de la cola: avisar a @leoojuncos. |
 
