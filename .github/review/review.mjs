@@ -12,6 +12,7 @@ import {
   isWorkingHours,
   lastEntry,
   lastVerdict,
+  prsUnderReview,
   startOfDayArgentina,
 } from "./lib/state.mjs";
 import {
@@ -138,8 +139,15 @@ async function runNightly() {
   if (isWorkingHours()) {
     return console.log("La cola de la noche arrancó en horario laboral porque GitHub la demoró: queda para la noche siguiente.");
   }
+  // Se mira si hay una corrida activa y no la etiqueta in-review: si una corrida murió sin limpiar, la
+  // etiqueta queda colgada y el PR tiene que volver a entrar en la cola.
+  const underReview = prsUnderReview(await github.listActiveRuns(WORKFLOW));
   for (const pull of await github.listOpenPulls()) {
     if (!labelsOf(pull).includes(LABELS.reviewable) || isFork(pull)) continue;
+    if (underReview.has(pull.number)) {
+      console.log(`Cola de la noche: #${pull.number} ya se está revisando`);
+      continue;
+    }
     console.log(`Cola de la noche: #${pull.number}`);
     await github.dispatch(WORKFLOW, process.env.DEFAULT_BRANCH, { pr: String(pull.number), origin: "nightly" });
   }

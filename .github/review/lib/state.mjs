@@ -71,6 +71,12 @@ export function isWorkingHours(now = new Date()) {
   return hour >= 9 && hour < 17;
 }
 
+// Las corridas de review se llaman "Review #<pr> · <origen>" (el run-name de review.yml).
+export function prsUnderReview(runs) {
+  const numbers = runs.map((run) => /^Review #(\d+)\b/.exec(run.display_title ?? "")?.[1]).filter(Boolean);
+  return new Set(numbers.map(Number));
+}
+
 export function countReviewNow(comments, since) {
   const today = comments.filter((comment) => new Date(comment.created_at) >= since);
   return botHistory(today).filter((entry) => entry.kind === "review-now" && entry.data.counts).length;
