@@ -13,9 +13,9 @@ public class RabbitConfig {
      * autoconfigura Spring Boot la crea en el broker al arrancar, de modo que el micro
      * queda escuchando aunque todavia nadie publique.
      *
-     * <p>Durable para que la cola (y sus mensajes) sobrevivan a un reinicio del broker.
-     * El nombre es provisional (ver application.yml); el contrato definitivo lo fijan
-     * TPS-18 (producer en Tesoreria) y TPS-22 (consumer real).
+     * <p>Durable para que la cola (y sus mensajes) sobrevivan a un reinicio del broker. El
+     * monolito la declara con las mismas propiedades: si difirieran, RabbitMQ rechazaria la
+     * segunda declaracion. El formato del mensaje esta en docs/contracts.md.
      */
     @Bean
     public Queue auditoriaQueue(@Value("${app.rabbitmq.queue}") String queueName) {

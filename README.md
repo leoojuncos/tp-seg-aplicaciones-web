@@ -5,10 +5,13 @@ Sistema de Gestión Municipal (SGM) mínimo y **deliberadamente vulnerable**, pa
 ## Arquitectura
 
 - **Monolito**: contiene Seguridad (login), Administración, Tesorería y el VEP.
+- **Módulo de mensajería** (`messaging`): paquete interno del monolito y único punto de acceso a la cola. Guarda los eventos de auditoría pendientes y tiene cuentas técnicas y sesión propias, independientes de la sesión del SGM.
 - **Microservicio de Auditoría**: servicio aparte que se comunica con el monolito a través de RabbitMQ.
-- **RabbitMQ**: cola de mensajes, del lado del monolito. Tesorería publica los eventos y el microservicio de Auditoría los consume.
+- **RabbitMQ**: cola de mensajes, del lado del monolito. Tesorería publica los eventos a través del módulo de mensajería y el microservicio de Auditoría los consume.
 - **PostgreSQL**: una única base compartida.
 - Todo se levanta con un único `docker-compose`.
+
+Los contratos entre las partes (el formato del evento, la API del módulo de mensajería y sus cuentas técnicas) están en [`docs/contracts.md`](docs/contracts.md).
 
 ## Stack y versiones
 

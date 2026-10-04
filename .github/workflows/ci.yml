@@ -64,6 +64,26 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Mismo esquema que en el docker-compose, donde Postgres corre db/init/ en su primer arranque.
+      - name: Aplicar los scripts de db/init
+        working-directory: ${{ github.workspace }}
+        env:
+          PGHOST: localhost
+          PGUSER: sgm
+          PGPASSWORD: sgm
+          PGDATABASE: sgm
+        run: |
+          command -v psql > /dev/null || { sudo apt-get update -q && sudo apt-get install -y -q postgresql-client; }
+          for _ in $(seq 1 30); do
+            pg_isready -q && break
+            sleep 1
+          done
+          shopt -s nullglob
+          for script in db/init/*.sql; do
+            echo "Aplicando $script"
+            psql -v ON_ERROR_STOP=1 -q -f "$script"
+          done
+
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
@@ -137,6 +157,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+
+      # Mismo esquema que en el docker-compose, donde Postgres corre db/init/ en su primer arranque.
+      - name: Aplicar los scripts de db/init
+        working-directory: ${{ github.workspace }}
+        env:
+          PGHOST: localhost
+          PGUSER: sgm
+          PGPASSWORD: sgm
+          PGDATABASE: sgm
+        run: |
+          command -v psql > /dev/null || { sudo apt-get update -q && sudo apt-get install -y -q postgresql-client; }
+          for _ in $(seq 1 30); do
+            pg_isready -q && break
+            sleep 1
+          done
+          shopt -s nullglob
+          for script in db/init/*.sql; do
+            echo "Aplicando $script"
+            psql -v ON_ERROR_STOP=1 -q -f "$script"
+          done
 
       - uses: actions/setup-java@v6
         with:

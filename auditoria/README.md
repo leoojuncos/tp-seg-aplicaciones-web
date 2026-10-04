@@ -38,7 +38,7 @@ Then start the app:
 
 The app connects using these defaults (overridable via env vars — see `src/main/resources/application.yml`): DB at `localhost:5432/sgm` (user/password `sgm`), RabbitMQ at `localhost:5672` (user/password `sgm`), app on port **`8081`** (the monolith uses `8080`).
 
-On startup, the logs should show `DB OK` and `RabbitMQ OK`, and the queue `auditoria.eventos` gets declared on the broker. Verify the health endpoint with:
+On startup, the logs should show `DB OK` and `RabbitMQ OK`, and the queue `auditoria.events` gets declared on the broker. Verify the health endpoint with:
 
 ```bash
 curl http://localhost:8081/api/health
@@ -49,7 +49,7 @@ If either dependency is down, `/api/health` responds `503` and reports which one
 
 ## The audit queue
 
-The micro declares a durable queue (`auditoria.eventos` by default, overridable via `AUDITORIA_QUEUE`) and keeps a listener attached to it. For now the listener only logs that a message arrived — it doesn't deserialize or process it. The definitive contract (queue/exchange/routing key and the event payload) is settled in [TPS-18](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-18) (producer) and [TPS-22](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-22) (consumer).
+The micro declares a durable queue (`auditoria.events` by default, overridable via `AUDITORIA_QUEUE`) and keeps a listener attached to it. For now the listener only logs that a message arrived — it doesn't deserialize or process it. The queue and the event payload are defined in [`docs/contracts.md`](../docs/contracts.md). The monolith's messaging module declares the same queue and is its only producer.
 
 ## Running the tests
 

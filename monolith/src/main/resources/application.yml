@@ -24,3 +24,10 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+
+app:
+  messaging:
+    # Cola por la que el modulo entrega los eventos de auditoria; Auditoria escucha la misma.
+    queue: ${AUDITORIA_QUEUE:auditoria.events}
+    # Vencimiento de las sesiones propias del modulo de mensajeria.
+    session-ttl: ${MESSAGING_SESSION_TTL:30m}

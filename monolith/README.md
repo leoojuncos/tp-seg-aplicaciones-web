@@ -82,13 +82,38 @@ curl http://localhost:8080/api/health
 
 If either dependency is down, `/api/health` responds `503` and reports which one, without crashing the app.
 
+## Messaging module
+
+The `messaging` package is the monolith's internal messaging module, the only part of the system that talks to the RabbitMQ queue. Other modules hand it audit events through `AuditEventPublisher`: it stores each event in the `pending_events` table, which is the source of truth, and puts it on the `auditoria.events` queue for the Auditoría service.
+
+The module has its own technical accounts (`technical_accounts` table) and its own sessions, separate from the SGM session cookie. `POST /api/messaging/auth/login` returns a bearer token, and every other endpoint under `/api/messaging/` requires `Authorization: Bearer <token>`. Since the module authenticates its own requests, any SGM session filter must leave `/api/messaging/**` out.
+
+| Endpoint | Returns |
+| --- | --- |
+| `POST /api/messaging/auth/login` | A session token for a technical account. |
+| `GET /api/messaging/accounts` | The technical accounts, without passwords. |
+| `GET /api/messaging/queue` | Messages and consumers of the audit queue. |
+| `GET /api/messaging/pending` | The audit events, newest first. |
+| `GET /api/messaging/pending/{id}` | One audit event. |
+
+Payloads, the error format and the fixed technical accounts are in [`docs/contracts.md`](../docs/contracts.md). The tables come from `db/init/02-messaging-schema.sql`, which Postgres runs when the compose volume is created; if your local database predates that script, recreate it with `docker compose down -v`.
+
+The seed loads the technical accounts. With them in the database:
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8080/api/messaging/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username": "auditoria_lector", "password": "Auditoria2026!"}' | jq -r .token)
+curl -s http://localhost:8080/api/messaging/pending -H "Authorization: Bearer $TOKEN"
+```
+
 ## Running the tests
 
 ```bash
 ./mvnw test
 ```
 
-The context-load test (`MonolithApplicationTests`) needs Postgres and RabbitMQ reachable (same as above), since it exercises the real connectivity checks — it's not mocked.
+The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest` runs the messaging API against the real database, so it also needs the tables from `db/init/` (see [Messaging module](#messaging-module)).
 
 ## A note on timezones
 

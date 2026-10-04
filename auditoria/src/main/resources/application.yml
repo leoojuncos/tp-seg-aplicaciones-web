@@ -27,6 +27,6 @@ server:
 
 app:
   rabbitmq:
-    # Nombre de la cola de eventos de auditoria. Provisional: el contrato definitivo
-    # (cola/exchange/routing key y formato del evento) se fija en TPS-18 y TPS-22.
-    queue: ${AUDITORIA_QUEUE:auditoria.eventos}
+    # Cola de eventos de auditoria. El monolito la declara con las mismas propiedades; el
+    # formato del mensaje esta en docs/contracts.md.
+    queue: ${AUDITORIA_QUEUE:auditoria.events}

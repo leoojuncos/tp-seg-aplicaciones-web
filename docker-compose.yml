@@ -10,6 +10,11 @@ x-connections: &connections
   RABBITMQ_PORT: "5672"
   RABBITMQ_USER: sgm
   RABBITMQ_PASSWORD: sgm
+  # Acceso al modulo de mensajeria del monolito con su cuenta de solo lectura. Los valores
+  # coinciden con los del seed (ver docs/contracts.md).
+  MONOLITH_URL: http://monolith:8080
+  MESSAGING_READ_USER: auditoria_lector
+  MESSAGING_READ_PASSWORD: "Auditoria2026!"
 
 services:
   postgres:
