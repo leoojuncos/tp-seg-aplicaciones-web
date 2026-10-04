@@ -1,7 +1,9 @@
 package ar.edu.utn.frba.tps.monolith.messaging.mapper;
 
+import ar.edu.utn.frba.tps.monolith.messaging.dto.AuditEventDto;
 import ar.edu.utn.frba.tps.monolith.messaging.dto.TechnicalAccountResponse;
 import ar.edu.utn.frba.tps.monolith.messaging.dto.TechnicalSessionResponse;
+import ar.edu.utn.frba.tps.monolith.messaging.model.PendingEvent;
 import ar.edu.utn.frba.tps.monolith.messaging.model.TechnicalAccount;
 import ar.edu.utn.frba.tps.monolith.messaging.model.TechnicalSession;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,10 @@ public class MessagingMapper {
 
     public TechnicalSessionResponse toResponse(TechnicalSession session) {
         return new TechnicalSessionResponse(session.token(), session.username(), session.role(), session.expiresAt());
+    }
+
+    public AuditEventDto toDto(PendingEvent event) {
+        return new AuditEventDto(event.getId(), event.getType(), event.getCuit(), event.getOccurredAt(), event.getStatus());
     }
 
 }

@@ -3,6 +3,7 @@ package ar.edu.utn.frba.tps.monolith.messaging.config;
 import ar.edu.utn.frba.tps.monolith.messaging.filter.TechnicalSessionFilter;
 import ar.edu.utn.frba.tps.monolith.messaging.service.TechnicalSessionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.amqp.core.Queue;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableConfigurationProperties(MessagingProperties.class)
 public class MessagingConfig {
+
+    /**
+     * Declara la cola de eventos de auditoria: el RabbitAdmin de Spring Boot la crea en el broker al
+     * conectarse. Auditoria la declara con las mismas propiedades (durable, no exclusiva, sin
+     * autodelete); si difirieran, RabbitMQ rechazaria la segunda declaracion.
+     */
+    @Bean
+    public Queue auditEventsQueue(MessagingProperties properties) {
+        return new Queue(properties.queue(), true);
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
