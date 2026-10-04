@@ -50,5 +50,12 @@ export function createClient({ token, repo }) {
     comment: (number, body) => request("POST", `${base}/issues/${number}/comments`, { body }),
     dispatch: (workflow, ref, inputs) =>
       request("POST", `${base}/actions/workflows/${workflow}/dispatches`, { ref, inputs }),
+    async listActiveRuns(workflow) {
+      const { workflow_runs: runs } = await request(
+        "GET",
+        `${base}/actions/workflows/${workflow}/runs?event=workflow_dispatch&per_page=100`,
+      );
+      return runs.filter((run) => run.status !== "completed");
+    },
   };
 }
