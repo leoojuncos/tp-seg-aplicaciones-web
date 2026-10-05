@@ -71,5 +71,16 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  frontend:
+    build: ./frontend
+    environment:
+      MONOLITH_URL: http://monolith:8080
+      AUDITORIA_URL: http://auditoria:8081
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on:
+      - monolith
+      - auditoria
+
 volumes:
   postgres-data:
