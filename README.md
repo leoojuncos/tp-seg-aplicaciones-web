@@ -9,6 +9,7 @@ Sistema de Gestión Municipal (SGM) mínimo y **deliberadamente vulnerable**, pa
 - **Microservicio de Auditoría**: servicio aparte que se comunica con el monolito a través de RabbitMQ.
 - **RabbitMQ**: cola de mensajes, del lado del monolito. Tesorería publica los eventos a través del módulo de mensajería y el microservicio de Auditoría los consume.
 - **PostgreSQL**: una única base compartida.
+- **Frontend** (`frontend/`): React + Vite, el único origen con el que habla el navegador. Su proxy lleva `/api` al monolito y `/auditoria/api` a Auditoría, así la cookie de sesión llega a los dos sin CORS.
 - Todo se levanta con un único `docker-compose`.
 
 Los contratos entre las partes (el formato del evento, la API del módulo de mensajería y sus cuentas técnicas) están en [`docs/contracts.md`](docs/contracts.md).
@@ -37,12 +38,13 @@ Hace falta Docker con Compose. Desde la raíz del repo:
 docker compose up -d --build
 ```
 
-Levanta Postgres, RabbitMQ, el monolito y Auditoría. Las apps arrancan cuando Postgres terminó de inicializar la base y RabbitMQ acepta conexiones. `--build` va siempre: sin él, Compose reusa las imágenes anteriores y no toma los cambios del código.
+Levanta Postgres, RabbitMQ, el monolito, Auditoría y el front. Las apps arrancan cuando Postgres terminó de inicializar la base y RabbitMQ acepta conexiones. `--build` va siempre: sin él, Compose reusa las imágenes anteriores y no toma los cambios del código.
 
 Los puertos se publican solo en `127.0.0.1`:
 
 | Servicio | Dirección |
 | --- | --- |
+| Front | http://localhost:5173 (muestra el estado de los dos backends) |
 | Monolito | http://localhost:8080/api/health |
 | Auditoría | http://localhost:8081/api/health |
 | UI de RabbitMQ | http://localhost:15672 (usuario y contraseña `sgm`) |
@@ -50,7 +52,7 @@ Los puertos se publican solo en `127.0.0.1`:
 
 En el primer arranque, Postgres corre los scripts de `db/init/`. `docker compose down -v` borra la base: el próximo `up` la vuelve a crear desde esos scripts.
 
-Para correr una app desde el IDE, levantar solo Postgres y RabbitMQ con `docker compose up -d postgres rabbitmq`. El README de cada servicio lo explica.
+Para correr una app desde el IDE, levantar solo Postgres y RabbitMQ con `docker compose up -d postgres rabbitmq`; el front se corre con `npm run dev` desde `frontend/`. El README de cada servicio lo explica.
 
 Si siguen corriendo los contenedores `sgm-postgres` y `sgm-rabbit` que indicaban antes los README de los servicios, ocupan los mismos puertos y el `up` falla. Se borran con `docker rm -f sgm-postgres sgm-rabbit`.
 
