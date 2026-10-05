@@ -10,6 +10,7 @@ jobs:
     outputs:
       monolith: ${{ steps.detectar.outputs.monolith }}
       auditoria: ${{ steps.detectar.outputs.auditoria }}
+      frontend: ${{ steps.detectar.outputs.frontend }}
     steps:
       - uses: actions/checkout@v7
 
@@ -23,6 +24,12 @@ jobs:
               echo "::notice::Todavía no existe $servicio/ en el repo, se saltea su check"
             fi
           done
+          if [ -f frontend/package.json ]; then
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "frontend=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Todavía no existe frontend/ en el repo, se saltea su check"
+          fi
 
   monolith:
     name: Monolito compila y arranca
@@ -211,3 +218,28 @@ jobs:
       - name: Mostrar el log del microservicio de Auditoría
         if: failure()
         run: cat app.log 2>/dev/null || echo "El microservicio de Auditoría no llegó a arrancar"
+
+  frontend:
+    name: Front compila
+    needs: detectar
+    if: needs.detectar.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar las dependencias
+        run: npm ci
+
+      - name: Compilar el front
+        run: npm run build
