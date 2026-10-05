@@ -54,6 +54,22 @@ Para correr una app desde el IDE, levantar solo Postgres y RabbitMQ con `docker 
 
 Si siguen corriendo los contenedores `sgm-postgres` y `sgm-rabbit` que indicaban antes los README de los servicios, ocupan los mismos puertos y el `up` falla. Se borran con `docker rm -f sgm-postgres sgm-rabbit`.
 
+### Datos de ejemplo
+
+El seed (`db/init/90-seed.sql`) carga los datos con los que se hace la demo:
+
+| Usuario | Contraseña | Rol | Permisos |
+| --- | --- | --- | --- |
+| `soporte` | `MesaDeAyuda41` | Soporte | Administración, Auditoría |
+| `tesorero` | `CajaFuerte73` | Tesorero | Tesorería |
+| `auditor` | `LupaFina58` | Auditor | Auditoría |
+| `admin` | `LlaveMaestra92` | Administrador | Administración, Tesorería, Auditoría |
+| `operador` | `VentanillaTres17` | Operador | ninguno |
+
+Hay una deuda de ejemplo: CUIT `20123456789`, $15.000, pendiente. Las cuentas técnicas del módulo de mensajería están en [`docs/contracts.md`](docs/contracts.md).
+
+Lo que cambia una demo, como una deuda condonada, queda guardado en la base. Para volver a estos datos: `docker compose down -v` y otra vez `up`.
+
 ## Review automática de PRs
 
 Los PRs los revisa un reviewer automático: Claude Opus, con una segunda opinión de Gemini y MiniMax sobre los hallazgos que piden cambios. La review se pide con etiquetas.
