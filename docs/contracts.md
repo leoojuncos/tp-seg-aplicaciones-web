@@ -32,6 +32,28 @@ Ejemplo:
 
 El mensaje siempre sale con `status: PENDING`; el estado vigente se consulta en el módulo, no en el mensaje. Antes de registrar un evento, Auditoría pide `GET /api/messaging/pending/{id}` con la cuenta de solo lectura y lo registra solo si la respuesta es `200` con `status: PENDING`. Si responde `404` o `status: CANCELLED`, lo descarta.
 
+## Formato de error del SGM
+
+Todos los endpoints del monolito y de Auditoría responden los errores con el mismo cuerpo. `error` es un código estable, para que el front lo compare; `message` es el detalle, para mostrarlo.
+
+```json
+{ "error": "not_found", "message": "No existe la deuda 42" }
+```
+
+| HTTP | `error` | Cuándo |
+| --- | --- | --- |
+| 400 | `validation` | Falta un campo, tiene un formato inválido o el cuerpo no se puede leer. |
+| 401 | `unauthorized` | No hay sesión, o no es válida. |
+| 403 | `forbidden` | La sesión no tiene permiso para el módulo o la operación. |
+| 404 | `not_found` | El recurso o la ruta no existen. |
+| 405 | `method_not_allowed` | La ruta no admite ese verbo. |
+| 409 | `conflict` | La operación choca con el estado actual del recurso, por ejemplo condonar una deuda ya condonada. |
+| 415 | `unsupported_media_type` | El cuerpo no es JSON. |
+| Otro 4xx | `bad_request` | El pedido no se puede atender por otro motivo, por ejemplo un `Accept` que no se puede cumplir (406) o un cuerpo demasiado grande (413). |
+| 500 | `internal` | Error inesperado; el detalle queda solo en el log. |
+
+Un módulo puede sumar códigos propios, como `rabbitmq_unavailable` del módulo de mensajería. Lo que se rechaza antes de llegar a Spring MVC (una excepción dentro de un filtro, una URL que el servidor no acepta) responde con el formato por defecto de Spring Boot.
+
 ## API del módulo de mensajería
 
 Endpoints del monolito bajo `/api/messaging/`. Dentro del docker-compose se llega por `MONOLITH_URL` (`http://monolith:8080`); desde el host, por `http://localhost:8080`; desde el front, por el mismo camino a través de su proxy de `/api`.
@@ -69,7 +91,7 @@ Los errores responden `{ "error": "<código>", "message": "<detalle>" }`:
 | 404 | `not_found` | El evento no existe. |
 | 503 | `rabbitmq_unavailable` | No se pudo consultar RabbitMQ. |
 
-Ese formato es el de los endpoints del módulo. Lo que falla antes de llegar a uno de ellos (una ruta que no existe, un método o un content-type que no acepta) y los errores internos inesperados, como la base caída, responden con el formato por defecto de Spring Boot.
+Los demás errores (ruta inexistente, verbo o content-type no aceptado, error interno) usan los códigos generales del [formato de error del SGM](#formato-de-error-del-sgm).
 
 La publicación no es un endpoint. Los módulos del monolito le entregan el evento al módulo de mensajería en el mismo proceso (`AuditEventPublisher`), que lo guarda como pendiente y lo encola. Ningún otro módulo accede a la cola.
 
