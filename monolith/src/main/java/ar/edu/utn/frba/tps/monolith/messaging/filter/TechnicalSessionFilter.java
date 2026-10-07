@@ -1,6 +1,6 @@
 package ar.edu.utn.frba.tps.monolith.messaging.filter;
 
-import ar.edu.utn.frba.tps.monolith.messaging.dto.ErrorResponse;
+import ar.edu.utn.frba.tps.monolith.dto.ErrorResponse;
 import ar.edu.utn.frba.tps.monolith.messaging.model.TechnicalSession;
 import ar.edu.utn.frba.tps.monolith.messaging.service.TechnicalSessionService;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,10 +1,12 @@
 package ar.edu.utn.frba.tps.monolith.messaging.exception;
 
+import ar.edu.utn.frba.tps.monolith.dto.ErrorResponse;
 import ar.edu.utn.frba.tps.monolith.messaging.controller.TechnicalAuthController;
-import ar.edu.utn.frba.tps.monolith.messaging.dto.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,7 +15,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-/** Traduce los errores de los controllers del modulo al formato de error de su API. */
+/**
+ * Traduce los errores de los controllers del modulo al formato de error de su API. Tiene precedencia
+ * sobre ApiExceptionHandler, el general del monolito: lo que no se maneja aca lo resuelve ese.
+ */
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(basePackageClasses = TechnicalAuthController.class)
 public class MessagingExceptionHandler {
 
