@@ -1,13 +1,14 @@
 import { BackButton } from '../../components/common/index.js';
 
-export default function PageNotFoundView() {
+// Destino de las opciones decorativas del menu (placeholder: true en routes/private.js).
+export default function NotInDemoView() {
   return (
     <section className="generic-page">
       <span className="material-symbols-outlined generic-page-icon" aria-hidden="true">
-        travel_explore
+        construction
       </span>
-      <h2>Página no encontrada</h2>
-      <p>Revisá que la dirección sea correcta.</p>
+      <h2>Sección fuera de la demo</h2>
+      <p>Esta sección no forma parte de la demo: está en el menú para que la navegación del sistema se vea completa.</p>
       <div className="generic-page-actions">
         <BackButton />
       </div>

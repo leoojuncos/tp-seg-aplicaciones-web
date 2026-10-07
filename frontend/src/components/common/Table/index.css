@@ -1,0 +1,44 @@
+.sgm-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sgm-table th {
+  height: 35px;
+  padding: 0 10px;
+  font-weight: 500;
+  color: var(--sgm-text-secondary);
+  white-space: nowrap;
+  background-color: var(--sgm-table-head);
+  border-right: 1px solid #fff;
+}
+
+.sgm-table th:last-child {
+  border-right: 0;
+}
+
+.sgm-table td {
+  height: 32px;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: var(--sgm-text);
+  border-bottom: 1px solid var(--sgm-table-head);
+}
+
+/* Boton de solo icono, para las acciones de una fila. */
+.btn-icon {
+  padding: 0 0.25rem;
+  color: var(--sgm-text-secondary);
+  line-height: 1;
+  background: none;
+  border: 0;
+}
+
+.btn-icon:hover {
+  color: var(--sgm-text);
+}
+
+.sgm-table-empty {
+  text-align: center;
+  color: var(--sgm-text-secondary) !important;
+}

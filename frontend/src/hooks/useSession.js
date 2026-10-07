@@ -1,5 +1,9 @@
-// Sesion del SGM. La cookie que la transporta la define TPS-13 (docs/contracts.md) y la emite el
-// login de TPS-14. Hasta entonces no hay sesion y las rutas privadas redirigen al login.
+import { useContext } from 'react';
+import { SessionContext } from '../context/SessionProvider.jsx';
+
+// Sesion del SGM: { session, loading, refresh, clear }. session es { username, role, permissions } o
+// null; loading es true hasta la primera respuesta; refresh la vuelve a pedir (despues del login) y
+// clear la descarta (despues del logout).
 export function useSession() {
-  return null;
+  return useContext(SessionContext);
 }

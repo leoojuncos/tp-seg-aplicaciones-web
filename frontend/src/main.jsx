@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fontsource-variable/montserrat';
+import 'material-symbols/outlined.css';
+import './styles/theme.css';
 import App from './App.jsx';
-import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
