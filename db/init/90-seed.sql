@@ -20,10 +20,14 @@ INSERT INTO users (username, password_hash, role_id) VALUES
     ('admin',    '$2a$10$foPV7tc44bQdhGnCPlUiueiMQfAdhPs7ZgGJ3rtccH7ftY4AiX/pW', (SELECT id FROM roles WHERE code = 'ADMINISTRADOR')),  -- LlaveMaestra92
     ('operador', '$2a$10$9pazoo5kDT70rwEwqnzVMOPhAQCb8Jd833/i1HtgW6L3gIg7JSiEy', (SELECT id FROM roles WHERE code = 'OPERADOR'));       -- VentanillaTres17
 
+-- INGRESOS_PUBLICOS y CONTADURIA son de modulos decorativos: aparecen en el home segun el permiso,
+-- como los demas, pero sus pantallas solo dicen "Seccion fuera de la demo". No tienen API.
 INSERT INTO permissions (code) VALUES
     ('ADMINISTRACION'),
     ('TESORERIA'),
-    ('AUDITORIA');
+    ('AUDITORIA'),
+    ('INGRESOS_PUBLICOS'),
+    ('CONTADURIA');
 
 INSERT INTO user_permissions (user_id, permission_id)
 SELECT u.id, p.id
@@ -31,10 +35,14 @@ FROM (VALUES
     ('soporte',  'ADMINISTRACION'),
     ('soporte',  'AUDITORIA'),
     ('tesorero', 'TESORERIA'),
+    ('tesorero', 'INGRESOS_PUBLICOS'),
+    ('tesorero', 'CONTADURIA'),
     ('auditor',  'AUDITORIA'),
     ('admin',    'ADMINISTRACION'),
     ('admin',    'TESORERIA'),
-    ('admin',    'AUDITORIA')
+    ('admin',    'AUDITORIA'),
+    ('admin',    'INGRESOS_PUBLICOS'),
+    ('admin',    'CONTADURIA')
 ) AS assignment (username, code)
 JOIN users u ON u.username = assignment.username
 JOIN permissions p ON p.code = assignment.code;
