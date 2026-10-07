@@ -1,7 +1,7 @@
 import { WelcomeView } from '../views/index.js';
 
-// Rutas que exigen sesion del SGM. `code` es el permiso que habilita la ruta (permissions.code:
-// ADMINISTRACION, TESORERIA o AUDITORIA); null = alcanza con tener sesion. El gating por code lo
+// Rutas que exigen sesion del SGM. `code` es el permiso que habilita la ruta (permissions.code, el
+// code de su modulo en routes/modules.js); null = alcanza con tener sesion. El gating por code lo
 // agrega TPS-15. Cada modulo suma las suyas con su prefijo (/administracion, /tesoreria, /auditoria),
 // en castellano: listado en plural (/tesoreria/deudas) y detalle en singular con parametro
 // (/tesoreria/deuda/:cuit). Banderas: layout: 'minimal', menu: true (aparece en el menu del encabezado
@@ -11,4 +11,12 @@ import { WelcomeView } from '../views/index.js';
 //   { path: '/tesoreria/recaudacion', title: 'Recaudación', code: 'TESORERIA', menu: true, placeholder: true },
 export const PrivateRoutes = [
   { path: '/welcome', title: 'Módulos', component: WelcomeView, code: null, layout: 'minimal' },
+
+  // Modulos decorativos (ver routes/modules.js): solo menu, sin pantallas.
+  { path: '/ingresos-publicos/tributos', title: 'Tributos', code: 'INGRESOS_PUBLICOS', menu: true, placeholder: true },
+  { path: '/ingresos-publicos/emision', title: 'Emisión', code: 'INGRESOS_PUBLICOS', menu: true, placeholder: true },
+  { path: '/ingresos-publicos/financiacion', title: 'Financiación', code: 'INGRESOS_PUBLICOS', menu: true, placeholder: true },
+  { path: '/contaduria/asientos', title: 'Asientos', code: 'CONTADURIA', menu: true, placeholder: true },
+  { path: '/contaduria/plan-de-cuentas', title: 'Plan de cuentas', code: 'CONTADURIA', menu: true, placeholder: true },
+  { path: '/contaduria/balances', title: 'Balances', code: 'CONTADURIA', menu: true, placeholder: true },
 ];

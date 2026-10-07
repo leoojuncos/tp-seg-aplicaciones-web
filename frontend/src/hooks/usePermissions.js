@@ -4,7 +4,7 @@ import { useSession } from './useSession.js';
 const NO_PERMISSIONS = [];
 
 // Permisos de la sesion: { permissions, ready, hasPermission }. permissions son los codigos de
-// permissions.code (ADMINISTRACION, TESORERIA, AUDITORIA); ready es false mientras carga la sesion.
+// permissions.code (los code de routes/modules.js); ready es false mientras carga la sesion.
 export function usePermissions() {
   const { session, loading } = useSession();
   const permissions = session?.permissions ?? NO_PERMISSIONS;
