@@ -9,3 +9,7 @@ CREATE ROLE sgm_monolith LOGIN PASSWORD 'sgm_monolith' NOSUPERUSER NOCREATEDB NO
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO sgm_monolith;
 -- Las columnas GENERATED ... AS IDENTITY toman el valor de una secuencia.
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO sgm_monolith;
+
+-- El monolito no usa audit_events, el registro append-only de Auditoria: sin permisos sobre esa
+-- tabla, su rol no puede modificar ni borrar lo registrado.
+REVOKE ALL ON audit_events FROM sgm_monolith;
