@@ -54,6 +54,21 @@ Todos los endpoints del monolito y de Auditoría responden los errores con el mi
 
 Un módulo puede sumar códigos propios, como `rabbitmq_unavailable` del módulo de mensajería. Lo que se rechaza antes de llegar a Spring MVC (una excepción dentro de un filtro, una URL que el servidor no acepta) responde con el formato por defecto de Spring Boot.
 
+## Cookie de sesión del SGM
+
+La sesión del SGM (distinta de la del módulo de mensajería) viaja en una cookie `sgm_session`, con atributos `Path=/; HttpOnly; SameSite=Lax` (sin `Secure`: la demo corre en HTTP local). El valor es el base64 (url-safe, sin padding) de un JSON con el usuario, su rol y sus permisos:
+
+```json
+{ "username": "admin", "role": "ADMINISTRADOR", "permissions": ["ADMINISTRACION"] }
+```
+
+El filtro que la lee exige esta cookie en todo `/api/**`, salvo `/api/health`, `/api/auth/login`, `/api/vep/**` y `/api/messaging/**` (que tiene su propia sesión). El resto de los módulos toma `role`/`permissions` de esta sesión sin volver a consultarlos contra la base.
+
+| Método y ruta | Respuesta |
+| --- | --- |
+| `GET /api/auth/session` | La sesión, tal cual la cookie (`200`), o `401` si no hay cookie o no se puede decodificar. |
+| `POST /api/auth/logout` | Vence la cookie (`204`). |
+
 ## API del módulo de mensajería
 
 Endpoints del monolito bajo `/api/messaging/`. Dentro del docker-compose se llega por `MONOLITH_URL` (`http://monolith:8080`); desde el host, por `http://localhost:8080`; desde el front, por el mismo camino a través de su proxy de `/api`.
