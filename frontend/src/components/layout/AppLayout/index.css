@@ -1,0 +1,63 @@
+.app-navbar {
+  --bs-navbar-color: var(--sgm-text-secondary);
+  --bs-navbar-hover-color: var(--sgm-text);
+  --bs-navbar-active-color: var(--sgm-text);
+  --bs-navbar-brand-color: var(--sgm-text-secondary);
+  --bs-navbar-brand-hover-color: var(--sgm-text);
+  --bs-navbar-nav-link-padding-x: 0.75rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.5rem 2.5rem;
+  background-color: #fff;
+  border-bottom: 1px solid var(--sgm-line);
+}
+
+.app-brand {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-right: 1.5rem;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.app-brand .material-symbols-outlined {
+  font-size: 28px;
+  color: var(--sgm-green);
+}
+
+.app-navbar .nav-link.active {
+  font-weight: 600;
+}
+
+.app-session {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  color: var(--sgm-text-secondary);
+}
+
+.app-session .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.app-logout {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  margin-left: 0.75rem;
+}
+
+.app-main {
+  padding: 1.5rem 2.5rem 3rem;
+}
+
+@media (max-width: 575.98px) {
+  .app-navbar {
+    padding: 0.5rem 1rem;
+  }
+
+  .app-main {
+    padding: 1rem;
+  }
+}

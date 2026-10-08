@@ -1,0 +1,14 @@
+.field-required {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 5px;
+  vertical-align: middle;
+  background-color: var(--sgm-grey);
+  border-radius: 50%;
+}
+
+.field-error {
+  min-height: 21px;
+  margin-top: 2px;
+}

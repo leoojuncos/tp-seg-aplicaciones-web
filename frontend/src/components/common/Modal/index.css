@@ -1,0 +1,22 @@
+.sgm-modal {
+  background-color: var(--sgm-backdrop);
+}
+
+.sgm-modal .modal-content {
+  color: var(--sgm-text-secondary);
+  border-color: var(--sgm-grey);
+}
+
+.sgm-modal .modal-header {
+  border-bottom-color: var(--sgm-line);
+}
+
+.sgm-modal .modal-title {
+  margin: 0;
+}
+
+/* Cancelar o Volver a la izquierda y la accion a la derecha. */
+.sgm-modal .modal-footer {
+  justify-content: space-between;
+  border-top: 0;
+}

@@ -1,0 +1,26 @@
+.sgm-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 1090;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--sgm-backdrop);
+  animation: sgm-loading-in 0.15s ease 0.2s both;
+}
+
+.sgm-loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #fff;
+}
+
+@keyframes sgm-loading-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

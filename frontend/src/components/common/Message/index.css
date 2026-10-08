@@ -1,0 +1,27 @@
+.sgm-message {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.6rem 0.75rem;
+  color: var(--sgm-text);
+  background-color: #fff;
+  border: 1px solid var(--sgm-line);
+  border-left: 4px solid var(--sgm-message-color);
+}
+
+.sgm-message-icon {
+  font-size: 20px;
+  color: var(--sgm-message-color);
+}
+
+.sgm-message-error {
+  --sgm-message-color: var(--sgm-red);
+}
+
+.sgm-message-success {
+  --sgm-message-color: var(--sgm-green);
+}
+
+.sgm-message-neutral {
+  --sgm-message-color: var(--sgm-grey);
+}

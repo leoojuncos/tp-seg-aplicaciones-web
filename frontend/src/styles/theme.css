@@ -1,0 +1,233 @@
+/* Paleta del SGM y overrides de Bootstrap. Tres colores con significado: verde para confirmar, gris
+   para volver o cancelar y rojo para errores y lo destructivo. Sin azul: los azules por defecto de
+   Bootstrap (enlaces, foco, item activo) se pisan con grises. Los estilos de un componente puntual
+   van en el index.css de su carpeta. */
+
+:root {
+  --sgm-green: #24c9a7;
+  --sgm-green-dark: #1fab8e;
+  --sgm-red: #cd1342;
+  --sgm-red-dark: #ae1038;
+  --sgm-grey: #b3b4b6;
+  --sgm-line: #e2e2e2;
+  --sgm-bg: #fbfbfb;
+  --sgm-table-head: #f3f3f3;
+  --sgm-input-border: #ededed;
+  --sgm-text: #3e4041;
+  --sgm-text-secondary: #676a6c;
+  --sgm-backdrop: rgba(103, 106, 108, 0.43);
+
+  --bs-body-font-family: 'Montserrat Variable', sans-serif;
+  --bs-body-font-size: 14px;
+  --bs-body-color: var(--sgm-text);
+  --bs-body-bg: var(--sgm-bg);
+  --bs-border-color: var(--sgm-line);
+  --bs-primary: var(--sgm-green);
+  --bs-primary-rgb: 36, 201, 167;
+  --bs-success: var(--sgm-green);
+  --bs-success-rgb: 36, 201, 167;
+  --bs-danger: var(--sgm-red);
+  --bs-danger-rgb: 205, 19, 66;
+  --bs-link-color: var(--sgm-text-secondary);
+  --bs-link-color-rgb: 103, 106, 108;
+  --bs-link-hover-color: var(--sgm-text);
+  --bs-link-hover-color-rgb: 62, 64, 65;
+  --bs-focus-ring-color: rgba(103, 106, 108, 0.25);
+  --bs-code-color: var(--sgm-text-secondary);
+  --bs-form-valid-color: var(--sgm-green);
+  --bs-form-valid-border-color: var(--sgm-green);
+  --bs-form-invalid-color: var(--sgm-red);
+  --bs-form-invalid-border-color: var(--sgm-red);
+}
+
+:focus-visible {
+  outline: 2px solid var(--sgm-grey);
+  outline-offset: 2px;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--sgm-text-secondary);
+}
+
+h2 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--sgm-text-secondary);
+}
+
+hr {
+  color: var(--sgm-line);
+  opacity: 1;
+}
+
+.material-symbols-outlined {
+  vertical-align: middle;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Botones: btn-primary (confirmar), btn-outline-secondary (volver, cancelar), btn-outline-danger
+   (destructivo). Se recolorean con las variables de Bootstrap. */
+
+.btn {
+  --bs-btn-font-size: 14px;
+}
+
+.btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--sgm-green);
+  --bs-btn-border-color: var(--sgm-green);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--sgm-green-dark);
+  --bs-btn-hover-border-color: var(--sgm-green-dark);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--sgm-green-dark);
+  --bs-btn-active-border-color: var(--sgm-green-dark);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--sgm-green);
+  --bs-btn-disabled-border-color: var(--sgm-green);
+  --bs-btn-focus-shadow-rgb: 103, 106, 108;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--sgm-text-secondary);
+  --bs-btn-border-color: var(--sgm-grey);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--sgm-grey);
+  --bs-btn-hover-border-color: var(--sgm-grey);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--sgm-grey);
+  --bs-btn-active-border-color: var(--sgm-grey);
+  --bs-btn-disabled-color: var(--sgm-grey);
+  --bs-btn-disabled-border-color: var(--sgm-line);
+  --bs-btn-focus-shadow-rgb: 103, 106, 108;
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--sgm-red);
+  --bs-btn-border-color: var(--sgm-red);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--sgm-red);
+  --bs-btn-hover-border-color: var(--sgm-red);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--sgm-red-dark);
+  --bs-btn-active-border-color: var(--sgm-red-dark);
+  --bs-btn-disabled-color: var(--sgm-red);
+  --bs-btn-disabled-border-color: var(--sgm-red);
+  --bs-btn-focus-shadow-rgb: 205, 19, 66;
+}
+
+/* Formularios */
+
+.form-label {
+  margin-bottom: 0.25rem;
+  color: var(--sgm-text-secondary);
+}
+
+.form-control,
+.form-select {
+  font-size: 14px;
+  color: var(--sgm-text);
+  border-color: var(--sgm-input-border);
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-control.is-invalid:focus,
+.form-select.is-invalid:focus {
+  border-color: var(--sgm-grey);
+  box-shadow: none;
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  color: var(--sgm-text-secondary);
+  background-color: var(--sgm-bg);
+}
+
+.form-control::placeholder {
+  opacity: 0.5;
+}
+
+.form-check-input:checked {
+  background-color: var(--sgm-text-secondary);
+  border-color: var(--sgm-text-secondary);
+}
+
+.form-check-input:focus {
+  border-color: var(--sgm-grey);
+  box-shadow: none;
+}
+
+/* Navegacion */
+
+.nav-link:focus-visible {
+  box-shadow: none;
+}
+
+.spinner-border {
+  color: var(--sgm-grey);
+}
+
+/* Bloques de pantalla */
+
+/* Panel blanco con borde donde va el contenido de una pantalla, debajo de SectionHeading. */
+.section-panel {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: var(--sgm-text-secondary);
+  background-color: #fff;
+  border: 1px solid var(--sgm-line);
+}
+
+.section-panel > * + * {
+  margin-top: 1rem;
+}
+
+/* Fila de botones al pie de un panel: Volver a la izquierda y las acciones a la derecha. */
+.section-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Pagina generica centrada: icono grande, titulo, texto y botones (404, sin acceso, fuera de la demo). */
+.generic-page {
+  max-width: 32rem;
+  margin: 4rem auto;
+  text-align: center;
+  color: var(--sgm-text-secondary);
+}
+
+.generic-page-icon {
+  font-size: 96px;
+  color: var(--sgm-grey);
+  font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 48;
+}
+
+.generic-page h2 {
+  margin-top: 1rem;
+}
+
+.generic-page-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+/* Estado de un backend en StatusView: verde si responde UP, rojo si no. */
+[data-status='UP'] {
+  color: var(--sgm-green);
+}
+
+[data-status='DOWN'],
+[data-status='sin respuesta'] {
+  color: var(--sgm-red);
+}
