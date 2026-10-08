@@ -26,6 +26,9 @@ server:
   port: ${SERVER_PORT:8080}
 
 app:
+  auth:
+    # Nombre de la cookie de sesion del SGM (base64 sin firma, TPS-13).
+    cookie-name: ${SGM_SESSION_COOKIE:sgm_session}
   messaging:
     # Cola por la que el modulo entrega los eventos de auditoria; Auditoria escucha la misma.
     queue: ${AUDITORIA_QUEUE:auditoria.events}
