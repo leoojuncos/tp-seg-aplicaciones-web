@@ -24,9 +24,14 @@ export function SessionProvider({ children }) {
       // Sin authRedirect: que no haya sesion no es una sesion vencida, y las paginas publicas no
       // tienen que mandar al login.
       const response = await getJson(SESSION_PATH, { authRedirect: false });
-      setState({ session: response.ok ? response.body : null, loading: false });
+      const session = response.ok ? response.body : null;
+      setState({ session, loading: false });
+      // Devuelve la sesion (o null): quien llama justo despues de un login no puede confiar en
+      // el "session" de este render para saber si funciono, por el closure stale de React.
+      return session;
     } catch {
       setState({ session: null, loading: false });
+      return null;
     }
   }, []);
 
