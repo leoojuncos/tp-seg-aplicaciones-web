@@ -107,13 +107,25 @@ TOKEN=$(curl -s -X POST http://localhost:8080/api/messaging/auth/login \
 curl -s http://localhost:8080/api/messaging/pending -H "Authorization: Bearer $TOKEN"
 ```
 
+## Tesorería module
+
+The `tesoreria` package holds the taxpayers' debts (`debts` table, one per CUIT) and their forgiveness. Forgiving a debt sets its status to `FORGIVEN` and keeps the original amount.
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /api/tesoreria/debts` | The debts, ordered by CUIT. With `?cuit=` (11 digits, no dashes), only that CUIT's debt. |
+| `GET /api/tesoreria/debts/{id}` | One debt. |
+| `POST /api/tesoreria/debts/{id}/forgive` | The forgiven debt, or `409` if it was already forgiven. |
+
+These endpoints require the SGM session cookie (`sgm_session`). The cookie and the error format are described in [`docs/contracts.md`](../docs/contracts.md).
+
 ## Running the tests
 
 ```bash
 ./mvnw test
 ```
 
-The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest` runs the messaging API against the real database, so it also needs the tables from `db/init/` (see [Messaging module](#messaging-module)).
+The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest` and `TesoreriaApiTest` run the messaging and debts APIs against the real database, so they also need the tables from `db/init/` (see [Messaging module](#messaging-module)).
 
 ## A note on timezones
 

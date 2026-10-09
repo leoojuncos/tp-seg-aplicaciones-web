@@ -50,7 +50,7 @@ The session comes from `SessionProvider` (`src/context/SessionProvider.jsx`), wh
 
 ## Adding a screen
 
-1. Create the view in `src/views/<Name>View/index.jsx` and export it from `src/views/index.js`. `StatusView` is the example of a list screen.
+1. Create the view in `src/views/<Name>View/index.jsx` and export it from `src/views/index.js`. `StatusView` is the example of a list screen, `DebtsView` of a list with a filter and `DebtView` of a detail with an action.
 2. Add an entry to `src/routes/private.js` (or `public.js` for a public screen) with `path`, `title`, `component`, the permission `code` for private routes, and the flags it needs.
 3. For a new module, add it to `src/routes/modules.js`.
 4. Call the backend through `src/api/http.js` (`getJson`, `postJson`, …) with relative paths; the session cookie travels on its own.
