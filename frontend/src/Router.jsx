@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { matchPath, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
-import { PrivateRoute, PublicRoute } from './components/common/index.js';
+import { Loading, PrivateRoute, PublicRoute } from './components/common/index.js';
 import AppLayout from './components/layout/AppLayout/index.jsx';
+import { useSession } from './hooks/useSession.js';
 import { PrivateRoutes } from './routes/private.js';
 import { PublicRoutes } from './routes/public.js';
 import { NotInDemoView } from './views/index.js';
@@ -31,6 +32,7 @@ function renderRoutes(routes) {
 // lo agrega TPS-15.
 export default function Router() {
   const { pathname } = useLocation();
+  const { session, loading } = useSession();
 
   useEffect(() => {
     const route =
@@ -42,7 +44,10 @@ export default function Router() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={<Navigate to="/estado" replace />} />
+        <Route
+          index
+          element={loading ? <Loading visible /> : <Navigate to={session ? '/welcome' : '/login'} replace />}
+        />
         {renderRoutes(PublicRoutes.filter((route) => !isMinimal(route)))}
         <Route
           element={

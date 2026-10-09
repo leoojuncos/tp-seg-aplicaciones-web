@@ -44,7 +44,7 @@ Los puertos se publican solo en `127.0.0.1`:
 
 | Servicio | Dirección |
 | --- | --- |
-| Front | http://localhost:5173 (muestra el estado de los dos backends) |
+| Front | http://localhost:5173 (pide login; `/estado` muestra el estado de los dos backends) |
 | Monolito | http://localhost:8080/api/health |
 | Auditoría | http://localhost:8081/api/health |
 | UI de RabbitMQ | http://localhost:15672 (usuario y contraseña `sgm`) |
