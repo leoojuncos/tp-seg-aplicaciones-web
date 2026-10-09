@@ -53,6 +53,12 @@ INSERT INTO technical_accounts (username, password_hash, role, service_id) VALUE
     ('auditoria_lector',   '$2a$10$ZK0qP7R9p/wICcTOCAKt9.ktRYVyC/VY.ez2lGvjop9HPT/Lb5LbG', 'READ',  'AUD-FISCAL'),
     ('auditoria_operador', '$2a$10$m29ldag9XFQ7swlxK5pQ4OTgyqhPwiemlnaly8z1bnpJ5C2e1mgK6', 'WRITE', 'AUD-FISCAL');
 
--- Deuda de ejemplo: el mismo CUIT del ejemplo del contrato del evento.
+-- Deudas de ejemplo, una por CUIT y todas pendientes: una condonada de entrada no tendria su evento en
+-- Auditoria. La primera es la de la demo, con el mismo CUIT del ejemplo del contrato del evento.
 INSERT INTO debts (cuit, amount, status) VALUES
-    ('20123456789', 15000.00, 'PENDING');
+    ('20123456789',  15000.00, 'PENDING'),
+    ('27283334444',  48250.50, 'PENDING'),
+    ('30712345671', 312400.00, 'PENDING'),
+    ('20301112220',   7300.00, 'PENDING'),
+    ('30709998885', 125990.75, 'PENDING'),
+    ('23256667770',   2150.00, 'PENDING');
