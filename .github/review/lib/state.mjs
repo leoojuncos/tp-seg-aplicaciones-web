@@ -97,6 +97,15 @@ export function decideLabelEvent({ action, label, labels, sender, owner, fork, s
   return { type: "accept", counts };
 }
 
+// changes-requested habla del commit revisado: se va con un push (se aplicaron los cambios) o cuando el
+// PR vuelve a la cola (se pone reviewable, o review-now con reviewable puesto), y el PR queda a la
+// espera del proximo veredicto.
+export function clearsChangesRequested({ action, label, labels, state }) {
+  if (state !== "open" || !labels.includes(LABELS.changes)) return false;
+  if (action === "synchronize") return true;
+  return action === "labeled" && [LABELS.now, LABELS.reviewable].includes(label) && labels.includes(LABELS.reviewable);
+}
+
 export function consensus(votes) {
   const answered = votes.filter((vote) => vote.verdict !== "unavailable");
   return answered.length === 0 || answered.some((vote) => vote.verdict === "yes");
