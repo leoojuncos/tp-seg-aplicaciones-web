@@ -1,11 +1,10 @@
 package ar.edu.utn.frba.tps.monolith.auth.controller;
 
 import ar.edu.utn.frba.tps.monolith.auth.dto.SessionResponse;
-import ar.edu.utn.frba.tps.monolith.config.AuthProperties;
+import ar.edu.utn.frba.tps.monolith.auth.service.SessionCookieFactory;
 import ar.edu.utn.frba.tps.monolith.filter.SessionCookieFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthProperties properties;
+    private final SessionCookieFactory cookieFactory;
 
-    public AuthController(AuthProperties properties) {
-        this.properties = properties;
+    public AuthController(SessionCookieFactory cookieFactory) {
+        this.cookieFactory = cookieFactory;
     }
 
     @GetMapping("/session")
@@ -34,14 +33,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-        ResponseCookie expired = ResponseCookie.from(properties.cookieName(), "")
-                .path("/")
-                .httpOnly(true)
-                .sameSite("Lax")
-                .maxAge(0)
-                .build();
         return ResponseEntity.noContent()
-                .header(HttpHeaders.SET_COOKIE, expired.toString())
+                .header(HttpHeaders.SET_COOKIE, cookieFactory.expire().toString())
                 .build();
     }
 

@@ -71,7 +71,7 @@ Then either:
 - **From another editor**: see [Opening the project in other editors](#opening-the-project-in-other-editors-vs-code-zed-etc).
 - **From the terminal**: `./mvnw spring-boot:run` (or `mvnw.cmd spring-boot:run` on Windows cmd/PowerShell).
 
-The app connects using these defaults (overridable via env vars — see `src/main/resources/application.yml`): DB at `localhost:5432/sgm` (user/password `sgm`), RabbitMQ at `localhost:5672` (user/password `sgm`), app on port `8080`.
+The app connects using these defaults (overridable via env vars — see `src/main/resources/application.yml`): DB at `localhost:5432/sgm` (user/password `sgm_monolith`, a non-superuser role created by `db/init/99-monolith-role.sql`; if your local database predates that script, recreate it with `docker compose down -v`), RabbitMQ at `localhost:5672` (user/password `sgm`), app on port `8080`.
 
 On startup, the logs should show `DB OK` and `RabbitMQ OK`. Verify with:
 

@@ -3,8 +3,9 @@ spring:
     name: monolith
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:sgm}
-    username: ${DB_USER:sgm}
-    password: ${DB_PASSWORD:sgm}
+    # Rol sin superusuario que crea db/init/99-monolith-role.sql (sgm queda para inicializar la base).
+    username: ${DB_USER:sgm_monolith}
+    password: ${DB_PASSWORD:sgm_monolith}
     hikari:
       # Un health check con timeout corto no tiene que quedarse esperando los 30 s
       # por defecto de Hikari cuando la base esta caida.

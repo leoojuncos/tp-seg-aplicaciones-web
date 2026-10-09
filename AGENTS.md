@@ -80,7 +80,7 @@ Reglas cortas; el detalle está en el código que se nombra como ejemplo. Son un
 - Una entidad se crea una sola vez, en el módulo del ticket que la introduce (`User`, `Role` y `Permission` en `auth`; `Debt` en `tesoreria`). Otro módulo la importa de ahí, y puede usar también sus repositories y services; nunca sus controllers.
 - Rutas: `/api/<modulo>/<recurso>`, recursos en inglés y en plural, detalle con parámetro, acciones como `POST /.../{id}/<verbo>`. Públicas: `/api/health`, `/api/auth/login` y `/api/vep/**`; `/api/messaging/**` tiene su propia sesión. El resto exige sesión y el permiso del módulo en mayúscula (lo aplica TPS-15).
 - Respuestas: un listado es un array y un detalle un objeto, sin envoltorio. Los filtros de una búsqueda van como query params opcionales del GET.
-- Errores: el controller no atrapa excepciones. El service valida y tira `NotFoundException`, `ForbiddenException` o `ConflictException`, y `ApiExceptionHandler` las traduce al formato de `docs/contracts.md`. Los filtros escriben ese formato ellos mismos.
+- Errores: el controller no atrapa excepciones. El service valida y tira `NotFoundException`, `ForbiddenException`, `ConflictException` o `UnauthorizedException`, y `ApiExceptionHandler` las traduce al formato de `docs/contracts.md`. Los filtros escriben ese formato ellos mismos.
 - Tests: de API, con `@SpringBootTest` + MockMvc contra la base real, como `MessagingApiTest`.
 
 ### Front
