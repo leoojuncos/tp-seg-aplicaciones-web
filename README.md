@@ -83,7 +83,7 @@ Los PRs los revisa un reviewer automático: Claude Opus, con una segunda opinió
 | `reviewable` | cualquiera del equipo | El PR entra en la cola de la noche, que arranca alrededor de las 03:00 (hora argentina). Si GitHub la demora hasta el horario laboral (9 a 17), queda para la noche siguiente. |
 | `review-now` | cualquiera del equipo, siempre junto con `reviewable` | La review corre en el momento. El bot saca la etiqueta enseguida y comenta si arrancó o por qué no. Leer la advertencia de abajo antes de usarla. |
 | `in-review` | el bot | Se está revisando. `reviewable` sigue puesto hasta el veredicto: si la review falla o se pushea mientras corre, el PR sigue en la cola. La cola de la noche no lanza otra review para un PR que ya se está revisando. |
-| `approved` / `changes-requested` | el bot | Es el veredicto. El bot saca `reviewable`. |
+| `approved` / `changes-requested` | el bot | Es el veredicto del commit revisado. El bot saca `reviewable`. Un push saca cualquiera de las dos, y volver a pedir la review saca `changes-requested`. |
 | `review-failed` | el bot | La review falló dos veces seguidas y el PR salió de la cola: avisar a @leoojuncos. |
 
 > [!WARNING]
@@ -98,14 +98,14 @@ Además del código, el reviewer lee el ticket de Jira que figura en el título 
 Cada pasada deja un comentario con los hallazgos: los que piden cambios, numerados F1, F2…, y los informativos, I1, I2…. Cada uno trae su severidad, el `archivo:línea` y, cuando ayuda, el fragmento de código o una propuesta concreta.
 
 - `BLOCK` y `WARN` piden cambios. `INFO` no bloquea.
-- El veredicto vale para el commit revisado: un push después del `approved` saca la etiqueta.
+- El veredicto vale para el commit revisado: un push saca `approved` o `changes-requested`. Volver a pedir la review (poner `reviewable`, o `review-now` junto con `reviewable`) también saca `changes-requested`: mientras espera la pasada siguiente, el PR queda solo con `reviewable`.
 - Si se pushea mientras está `in-review`, el veredicto sale igual pero no se aplica, y el PR vuelve a la cola.
 
 ### Cómo iterar
 
 1. Corregir lo que corresponda, con amend o fixup como indica `AGENTS.md`.
 2. Si un hallazgo no corresponde, responder en el PR con su número y la razón. Si la razón se sostiene, la pasada siguiente lo marca `justified` y deja de bloquear.
-3. Volver a poner `reviewable`. La pasada siguiente corre a la noche, o en el momento con `review-now` (misma advertencia, mismo tope), y no repite lo ya resuelto o justificado.
+3. Volver a poner `reviewable` (si quedaba `changes-requested`, el bot lo saca). La pasada siguiente corre a la noche, o en el momento con `review-now` (misma advertencia, mismo tope), y no repite lo ya resuelto o justificado.
 
 Las vulnerabilidades buscadas del escenario están listadas en `AGENTS.md`: el reviewer no las marca como defecto. Sí marca un cambio que altera una sin ser su mitigación, una mitigación que deja alguna ruta sin cubrir y cualquier cambio a la lista. Una vulnerabilidad que no está en la lista es un defecto y pide cambios, aunque parezca intencional.
 

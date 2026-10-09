@@ -6,6 +6,7 @@ import {
   BOT_LOGIN,
   LABELS,
   botHistory,
+  clearsChangesRequested,
   countReviewNow,
   decideLabelEvent,
   failuresSinceVerdict,
@@ -121,6 +122,10 @@ async function handleLabels() {
     cap,
   });
   console.log(`#${number} ${event.action} ${event.label?.name ?? ""} → ${decision.type} ${decision.reason ?? ""}`);
+  if (clearsChangesRequested({ action: event.action, label: event.label?.name, labels, state: pull.state })) {
+    console.log(`#${number}: se saca ${LABELS.changes}`);
+    await github.removeLabel(number, LABELS.changes);
+  }
   if (decision.type === "unapprove") {
     const verdict = lastVerdict(botHistory(await github.listIssueComments(number)));
     await github.removeLabel(number, LABELS.approved);
