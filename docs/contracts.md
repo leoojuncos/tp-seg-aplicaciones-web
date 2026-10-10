@@ -64,6 +64,17 @@ La sesión del SGM (distinta de la del módulo de mensajería) viaja en una cook
 
 El filtro que la lee exige esta cookie en todo `/api/**`, salvo `/api/health`, `/api/auth/login`, `/api/vep/**` y `/api/messaging/**` (que tiene su propia sesión). El resto de los módulos toma `role`/`permissions` de esta sesión sin volver a consultarlos contra la base.
 
+### Gating de módulos
+
+En el monolito, `/api/<modulo>/**` exige el permiso con el nombre del módulo en mayúscula: `/api/tesoreria/**` pide `TESORERIA` y `/api/administracion/**` pide `ADMINISTRACION`. Los permisos salen de la cookie tal cual.
+
+- Sin cookie, o con una que no se puede decodificar: `401` `unauthorized`.
+- Con sesión pero sin el permiso del módulo: `403` `forbidden`.
+- `/api/auth/session` y `/api/auth/logout` piden solo la sesión, sin permiso.
+- Default deny: con sesión, una ruta bajo `/api/**` que no es pública ni de un módulo conocido responde `403`, aunque la sesión tenga todos los permisos.
+
+La ruta se normaliza antes de elegir el módulo, así que segmentos como `..` no permiten entrar a un módulo por la ruta de otro. Auditoría es otro servicio: su gating lo hace su propio filtro, con esta misma cookie (TPS-23).
+
 | Método y ruta | Respuesta |
 | --- | --- |
 | `POST /api/auth/login` con `{username, password}` | Credenciales válidas: emite la cookie y responde la sesión (`200`). Inválidas: `401` `unauthorized`. |
