@@ -1,8 +1,8 @@
 import { DebtsView, DebtView, WelcomeView } from '../views/index.js';
 
 // Rutas que exigen sesion del SGM. `code` es el permiso que habilita la ruta (permissions.code, el
-// code de su modulo en routes/modules.js); null = alcanza con tener sesion. El gating por code lo
-// agrega TPS-15. Cada modulo suma las suyas con su prefijo (/administracion, /tesoreria, /auditoria),
+// code de su modulo en routes/modules.js); null = alcanza con tener sesion. Sin ese permiso en la
+// sesion, PrivateRoute manda a /unauthorized. Cada modulo suma las suyas con su prefijo (/administracion, /tesoreria, /auditoria),
 // en castellano: listado en plural (/tesoreria/deudas) y detalle en singular con parametro
 // (/tesoreria/deuda/:id). Banderas: layout: 'minimal', menu: true (aparece en el menu del encabezado
 // mientras se esta en su modulo) y placeholder: true (opcion decorativa, sin component: el Router la
