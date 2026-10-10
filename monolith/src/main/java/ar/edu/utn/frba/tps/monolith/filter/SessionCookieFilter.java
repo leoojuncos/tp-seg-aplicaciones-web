@@ -11,16 +11,15 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import java.util.Set;
 
 /**
- * Exige la cookie de sesion del SGM en todo {@code /api/**}, salvo las rutas publicas. Deja la
+ * Exige la cookie de sesion del SGM en todo {@code /api/**}, salvo las rutas publicas de
+ * {@link ApiPaths}. Deja la
  * sesion resuelta en el atributo {@link #SESSION_ATTRIBUTE} del request, para que el resto de los
  * modulos tome los permisos de ahi sin re-derivarlos (esa falta de re-derivacion es la
  * vulnerabilidad #2 del escenario, ver AGENTS.md: no se corrige en este filtro).
@@ -31,13 +30,6 @@ import java.util.Set;
 public class SessionCookieFilter extends OncePerRequestFilter {
 
     public static final String SESSION_ATTRIBUTE = "sgmSession";
-
-    // A diferencia de TechnicalSessionFilter (paths exactos), esta lista usa prefijos porque
-    // tiene que liberar subarboles enteros (/api/vep/**, /api/messaging/**). Por eso la URI se
-    // normaliza con StringUtils.cleanPath antes de comparar: sin esto, "/api/messaging/../auth/
-    // session" empieza literalmente con "/api/messaging/" y quedaria sin protección.
-    private static final Set<String> PUBLIC_EXACT_PATHS = Set.of("/api/health", "/api/auth/login");
-    private static final Set<String> PUBLIC_PATH_PREFIXES = Set.of("/api/vep/", "/api/messaging/");
 
     private final AuthProperties properties;
     private final SessionCookieCodec codec;
@@ -55,15 +47,7 @@ public class SessionCookieFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // getServletPath()/getPathInfo() ya vienen decodificados y normalizados por el contenedor
-        // (a diferencia de getRequestURI(), que es la URI cruda): cleanPath solo no alcanzaba para
-        // trucos como "..;" o "%2e%2e" en el path (I1).
-        String rawPath = request.getServletPath() + (request.getPathInfo() != null ? request.getPathInfo() : "");
-        String path = StringUtils.cleanPath(rawPath);
-        if (PUBLIC_EXACT_PATHS.contains(path)) {
-            return true;
-        }
-        return PUBLIC_PATH_PREFIXES.stream().anyMatch(path::startsWith);
+        return ApiPaths.isPublic(ApiPaths.normalized(request));
     }
 
     @Override
