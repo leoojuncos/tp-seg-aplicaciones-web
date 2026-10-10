@@ -117,7 +117,7 @@ The `tesoreria` package holds the taxpayers' debts (`debts` table, one per CUIT)
 | `GET /api/tesoreria/debts/{id}` | One debt. |
 | `POST /api/tesoreria/debts/{id}/forgive` | The forgiven debt, or `409` if it was already forgiven. |
 
-These endpoints require the SGM session cookie (`sgm_session`). The cookie and the error format are described in [`docs/contracts.md`](../docs/contracts.md).
+These endpoints require the SGM session cookie (`sgm_session`) with the `TESORERIA` permission. The cookie, the module gating and the error format are described in [`docs/contracts.md`](../docs/contracts.md).
 
 ## Running the tests
 

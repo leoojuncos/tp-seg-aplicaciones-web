@@ -8,6 +8,6 @@ export const PublicRoutes = [
   { path: '/logout', title: 'Salir', component: LogoutView, layout: 'minimal' },
   { path: '/estado', title: 'Estado', component: StatusView, menu: true },
   { path: '/vep', title: 'Consulta de deuda', component: VepView, menu: true },
-  { path: '/unauthorized', title: 'Sesión vencida', component: UnauthorizedView, layout: 'minimal' },
+  { path: '/unauthorized', title: 'Sin acceso', component: UnauthorizedView, layout: 'minimal' },
   { path: '*', title: 'Página no encontrada', component: PageNotFoundView, layout: 'minimal' },
 ];

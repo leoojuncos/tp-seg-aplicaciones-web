@@ -2,7 +2,7 @@
 
 React 18 + Vite app (`frontend/`) for the SGM, per [TPS-26](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-26). JavaScript only, no TypeScript.
 
-Besides the skeleton (the routing, the proxy to the two backends and a status screen), it has the common pieces from [TPS-27](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-27): the session (`src/context/SessionProvider.jsx`), the HTTP client (`src/api/http.js`), the styles (`src/styles/theme.css`, Bootstrap with the SGM palette) and the shared components in `src/components/common/`, each one documented in a comment at the top of its file. The code conventions are in [`AGENTS.md`](../AGENTS.md#convenciones-de-código). Login landed in [TPS-14](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-14); the rest of the business screens land with their own tickets (module gating in TPS-15, VEP in TPS-21, and one ticket per module).
+Besides the skeleton (the routing, the proxy to the two backends and a status screen), it has the common pieces from [TPS-27](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-27): the session (`src/context/SessionProvider.jsx`), the HTTP client (`src/api/http.js`), the styles (`src/styles/theme.css`, Bootstrap with the SGM palette) and the shared components in `src/components/common/`, each one documented in a comment at the top of its file. The code conventions are in [`AGENTS.md`](../AGENTS.md#convenciones-de-código). Login landed in [TPS-14](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-14); module gating in [TPS-15](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-15); the rest of the business screens land with their own tickets (VEP in TPS-21, and one ticket per module).
 
 ## Prerequisites
 
@@ -41,13 +41,15 @@ Routes are declared as arrays in `src/routes/public.js` (no session) and `src/ro
 | `/vep` | public | Public debt lookup (TPS-21). |
 | `/login` | public, `guestOnly` | Login form. |
 | `/logout` | public | Calls `POST /api/auth/logout`, clears the session and goes to `/login`. |
-| `/unauthorized` | public | Expired session or no access. |
+| `/unauthorized` | public | Expired session or no access: where a private route goes when the session lacks its permission `code`. |
 | `*` | public | Not found. |
 | `/welcome` | behind the login | Module selector: one button per module enabled in the session (`WelcomeView`). |
 
 Each module's routes are in `src/routes/private.js`, with the module prefix (`/administracion`, `/tesoreria`, `/auditoria`) and its permission `code`; the module is entered through the screen listed in `src/routes/modules.js`. Ingresos Públicos and Contaduría are decorative modules, so the system looks complete: they have a permission and show up in `/welcome` like the others, but all their routes are `placeholder: true`. Route flags: `layout: 'minimal'` (header with only the brand and the session), `menu: true` (shows up in the header menu, which lists the public routes when there is no session and, inside a module, only that module's routes; the modules themselves are chosen in `/welcome`, never in the header), `guestOnly: true` (a public route only for visitors without a session, like `/login`) and `placeholder: true` (a decorative menu option, without `component`, that opens "Sección fuera de la demo").
 
 The session comes from `SessionProvider` (`src/context/SessionProvider.jsx`), which asks `GET /api/auth/session` when the app loads and right after a successful login: a `200` is a session, anything else (`401` without a valid `sgm_session` cookie) is none. `src/api/http.js` handles the auth errors: a `401` clears the session and goes to `/login`, remembering the destination, and a `403` goes to `/unauthorized`.
+
+Every private route goes through `PrivateRoute` (`src/components/common/PrivateRoute/index.jsx`): without a session it goes to `/login`, and when the route has a permission `code` that is not in `session.permissions` it goes to `/unauthorized`. The back checks the same permission on its side (see [`docs/contracts.md`](../docs/contracts.md)), so hiding a route in the front is not what protects the data.
 
 ## Adding a screen
 
