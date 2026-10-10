@@ -66,6 +66,7 @@ El filtro que la lee exige esta cookie en todo `/api/**`, salvo `/api/health`, `
 
 | Método y ruta | Respuesta |
 | --- | --- |
+| `POST /api/auth/login` con `{username, password}` | Credenciales válidas: emite la cookie y responde la sesión (`200`). Inválidas: `401` `unauthorized`. |
 | `GET /api/auth/session` | La sesión, tal cual la cookie (`200`), o `401` si no hay cookie o no se puede decodificar. |
 | `POST /api/auth/logout` | Vence la cookie (`204`). |
 

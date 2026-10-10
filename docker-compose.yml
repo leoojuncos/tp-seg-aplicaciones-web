@@ -51,7 +51,12 @@ services:
 
   monolith:
     build: ./monolith
-    environment: *connections
+    environment:
+      <<: *connections
+      # Rol sin superusuario de db/init/99-monolith-role.sql: el login inyectable no tiene que
+      # llegar a funciones de superusuario.
+      DB_USER: sgm_monolith
+      DB_PASSWORD: sgm_monolith
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:

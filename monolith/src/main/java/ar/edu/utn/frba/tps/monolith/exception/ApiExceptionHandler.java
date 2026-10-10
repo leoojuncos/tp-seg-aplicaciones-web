@@ -39,6 +39,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return error(HttpStatus.FORBIDDEN, "forbidden", exception.getMessage());
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> unauthorized(UnauthorizedException exception) {
+        return error(HttpStatus.UNAUTHORIZED, "unauthorized", exception.getMessage());
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ErrorResponse> conflict(ConflictException exception) {
         return error(HttpStatus.CONFLICT, "conflict", exception.getMessage());

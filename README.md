@@ -44,11 +44,11 @@ Los puertos se publican solo en `127.0.0.1`:
 
 | Servicio | Dirección |
 | --- | --- |
-| Front | http://localhost:5173 (muestra el estado de los dos backends) |
+| Front | http://localhost:5173 (pide login; `/estado` muestra el estado de los dos backends) |
 | Monolito | http://localhost:8080/api/health |
 | Auditoría | http://localhost:8081/api/health |
 | UI de RabbitMQ | http://localhost:15672 (usuario y contraseña `sgm`) |
-| Postgres | `localhost:5432`, base `sgm` (usuario y contraseña `sgm`) |
+| Postgres | `localhost:5432`, base `sgm` (usuario y contraseña `sgm`; el monolito se conecta con `sgm_monolith`, que no es superusuario) |
 
 En el primer arranque, Postgres corre los scripts de `db/init/`. `docker compose down -v` borra la base: el próximo `up` la vuelve a crear desde esos scripts.
 
