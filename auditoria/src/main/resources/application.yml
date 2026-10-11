@@ -21,6 +21,18 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:sgm}
     password: ${RABBITMQ_PASSWORD:sgm}
+    listener:
+      simple:
+        # Un solo mensaje sin ackear a la vez: el proximo se entrega recien cuando termina el
+        # anterior. Con prefetch alto, el consumer_timeout de RabbitMQ corre para todos los
+        # mensajes entregados de antemano mientras se procesan de a uno con demora, y los cierra.
+        prefetch: 1
+  http:
+    client:
+      # El consumer es de un solo hilo: sin timeouts, un monolito que acepta la conexion pero no
+      # responde lo dejaria bloqueado sin consumir. Con timeout, se convierte en un reintento.
+      connect-timeout: 3s
+      read-timeout: 10s
 
 server:
   port: ${SERVER_PORT:8081}
@@ -30,3 +42,13 @@ app:
     # Cola de eventos de auditoria. El monolito la declara con las mismas propiedades; el
     # formato del mensaje esta en docs/contracts.md.
     queue: ${AUDITORIA_QUEUE:auditoria.events}
+  messaging:
+    # Acceso a la API del modulo de mensajeria del monolito para confirmar el estado del evento
+    # antes de registrarlo. Los defaults son los del contrato, para correr Auditoria desde el IDE.
+    url: ${MONOLITH_URL:http://localhost:8080}
+    read-user: ${MESSAGING_READ_USER:auditoria_lector}
+    read-password: ${MESSAGING_READ_PASSWORD:Auditoria2026!}
+  auditoria:
+    # Demora deliberada entre que llega el evento y que se procesa. Valor comodo para la demo;
+    # los tests lo bajan a cero.
+    delay: ${AUDITORIA_DELAY:3m}
