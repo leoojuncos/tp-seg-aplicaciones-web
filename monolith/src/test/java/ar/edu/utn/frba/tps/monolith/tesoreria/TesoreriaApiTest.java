@@ -2,23 +2,45 @@ package ar.edu.utn.frba.tps.monolith.tesoreria;
 
 import ar.edu.utn.frba.tps.monolith.auth.dto.SessionResponse;
 import ar.edu.utn.frba.tps.monolith.auth.service.SessionCookieCodec;
+import ar.edu.utn.frba.tps.monolith.messaging.dto.AuditEventDto;
+import ar.edu.utn.frba.tps.monolith.messaging.model.PendingEventStatus;
+import ar.edu.utn.frba.tps.monolith.messaging.repository.PendingEventRepository;
+import ar.edu.utn.frba.tps.monolith.messaging.service.AuditEventPublisher;
+import ar.edu.utn.frba.tps.monolith.messaging.service.PendingEventService;
 import ar.edu.utn.frba.tps.monolith.tesoreria.model.Debt;
 import ar.edu.utn.frba.tps.monolith.tesoreria.model.DebtStatus;
 import ar.edu.utn.frba.tps.monolith.tesoreria.repository.DebtRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.amqp.AmqpConnectException;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.ConnectException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,8 +48,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Prueba la API de deudas contra Postgres, con el esquema de db/init/ aplicado. Cada test crea su
- * deuda, con un CUIT que el seed no usa, en una transaccion que se descarta al terminar. No hay login
- * todavia (TPS-14): la cookie de sesion se arma con el SessionCookieCodec real, como en AuthApiTest.
+ * deuda, con un CUIT que el seed no usa, en una transaccion que se descarta al terminar; el del rollback
+ * de la condonacion corre sin ella y borra su deuda al final. La cookie de sesion se arma con el
+ * SessionCookieCodec real, como en AuthApiTest. El envio a RabbitMQ se reemplaza por un mock, como en
+ * MessagingApiTest, para revisar el evento que entrega la condonacion sin depender de quien consuma la
+ * cola.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,6 +61,7 @@ class TesoreriaApiTest {
 
     private static final String CUIT = "33698765432";
     private static final String COOKIE_NAME = "sgm_session";
+    private static final String QUEUE = "auditoria.events";
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,10 +70,22 @@ class TesoreriaApiTest {
     private DebtRepository debtRepository;
 
     @Autowired
+    private PendingEventRepository pendingEventRepository;
+
+    @Autowired
+    private PendingEventService pendingEventService;
+
+    @Autowired
     private SessionCookieCodec codec;
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private RabbitTemplate rabbitTemplate;
 
     private Debt debt;
     private Cookie session;
@@ -116,6 +154,55 @@ class TesoreriaApiTest {
         mockMvc.perform(post("/api/tesoreria/debts/{id}/forgive", -1).cookie(session))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("not_found"));
+    }
+
+    @Test
+    void forgivingQueuesTheAuditEvent() throws Exception {
+        Instant before = Instant.now();
+        mockMvc.perform(post("/api/tesoreria/debts/{id}/forgive", debt.getId()).cookie(session))
+                .andExpect(status().isOk());
+        Instant after = Instant.now();
+
+        JsonNode message = sentMessage();
+        // Se lee de la base y no de la cache de la sesion de JPA.
+        entityManager.clear();
+        AuditEventDto stored = pendingEventService.get(UUID.fromString(message.get("id").asText()));
+        assertThat(stored.type()).isEqualTo(AuditEventPublisher.DEBT_FORGIVEN);
+        assertThat(stored.cuit()).isEqualTo(CUIT);
+        assertThat(stored.status()).isEqualTo(PendingEventStatus.PENDING);
+        // El modulo trunca el timestamp a microsegundos.
+        assertThat(stored.timestamp()).isBetween(before.truncatedTo(ChronoUnit.MICROS), after);
+        assertThat(message).isEqualTo(objectMapper.readTree(objectMapper.writeValueAsBytes(stored)));
+    }
+
+    // Sin la transaccion del test: con ella, la condonacion se uniria a esa transaccion y la excepcion
+    // solo la marcaria rollback-only, con el UPDATE de la deuda ya escrito. Asi la condonacion abre la
+    // suya y se ve el rollback real. La deuda del BeforeEach queda guardada en la base: se borra al final.
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void forgivingIsRolledBackWhenTheEventCannotBeQueued() throws Exception {
+        try {
+            doThrow(new AmqpConnectException(new ConnectException("Connection refused")))
+                    .when(rabbitTemplate).send(eq(QUEUE), any(Message.class));
+
+            mockMvc.perform(post("/api/tesoreria/debts/{id}/forgive", debt.getId()).cookie(session))
+                    .andExpect(status().isServiceUnavailable())
+                    .andExpect(jsonPath("$.error").value("rabbitmq_unavailable"));
+
+            UUID eventId = UUID.fromString(sentMessage().get("id").asText());
+            assertThat(pendingEventRepository.existsById(eventId)).isFalse();
+            assertThat(debtRepository.findById(debt.getId())).get()
+                    .extracting(Debt::getStatus).isEqualTo(DebtStatus.PENDING);
+        } finally {
+            debtRepository.deleteById(debt.getId());
+        }
+    }
+
+    // El mensaje que el modulo messaging le entrego a la cola de Auditoria.
+    private JsonNode sentMessage() throws IOException {
+        ArgumentCaptor<Message> sent = ArgumentCaptor.forClass(Message.class);
+        verify(rabbitTemplate).send(eq(QUEUE), sent.capture());
+        return objectMapper.readTree(sent.getValue().getBody());
     }
 
 }

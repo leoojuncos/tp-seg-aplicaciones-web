@@ -51,8 +51,9 @@ Todos los endpoints del monolito y de Auditoría responden los errores con el mi
 | 415 | `unsupported_media_type` | El cuerpo no es JSON. |
 | Otro 4xx | `bad_request` | El pedido no se puede atender por otro motivo, por ejemplo un `Accept` que no se puede cumplir (406) o un cuerpo demasiado grande (413). |
 | 500 | `internal` | Error inesperado; el detalle queda solo en el log. |
+| 503 | `rabbitmq_unavailable` | No se pudo usar RabbitMQ, por ejemplo al encolar el evento de auditoría de una condonación: la deuda no se condona. |
 
-Un módulo puede sumar códigos propios, como `rabbitmq_unavailable` del módulo de mensajería. Lo que se rechaza antes de llegar a Spring MVC (una excepción dentro de un filtro, una URL que el servidor no acepta) responde con el formato por defecto de Spring Boot.
+Un módulo puede sumar códigos propios. Lo que se rechaza antes de llegar a Spring MVC (una excepción dentro de un filtro, una URL que el servidor no acepta) responde con el formato por defecto de Spring Boot.
 
 ## Cookie de sesión del SGM
 

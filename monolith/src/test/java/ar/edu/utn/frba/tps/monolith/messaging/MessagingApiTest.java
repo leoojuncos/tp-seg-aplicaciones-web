@@ -123,7 +123,7 @@ class MessagingApiTest {
 
     @Test
     void publishedEventIsQueuedAndStaysPendingInTheModule() throws Exception {
-        AuditEventDto event = publisher.publish("DEBT_FORGIVEN", "20123456789", Instant.parse("2026-10-04T21:15:30.123456789Z"));
+        AuditEventDto event = publisher.publish(AuditEventPublisher.DEBT_FORGIVEN, "20123456789", Instant.parse("2026-10-04T21:15:30.123456789Z"));
         ArgumentCaptor<Message> sent = ArgumentCaptor.forClass(Message.class);
         verify(rabbitTemplate).send(eq("auditoria.events"), sent.capture());
         // Se lee de la base y no de la cache de la sesion de JPA.
@@ -133,7 +133,7 @@ class MessagingApiTest {
         String stored = mockMvc.perform(get("/api/messaging/pending/{id}", event.id()).header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(event.id().toString()))
-                .andExpect(jsonPath("$.type").value("DEBT_FORGIVEN"))
+                .andExpect(jsonPath("$.type").value(AuditEventPublisher.DEBT_FORGIVEN))
                 .andExpect(jsonPath("$.cuit").value("20123456789"))
                 .andExpect(jsonPath("$.timestamp").value("2026-10-04T21:15:30.123456Z"))
                 .andExpect(jsonPath("$.status").value("PENDING"))
@@ -148,7 +148,7 @@ class MessagingApiTest {
 
     @Test
     void eventWithAMalformedCuitIsNotPublished() {
-        assertThatThrownBy(() -> publisher.publish("DEBT_FORGIVEN", "20-12345678-9", Instant.now()))
+        assertThatThrownBy(() -> publisher.publish(AuditEventPublisher.DEBT_FORGIVEN, "20-12345678-9", Instant.now()))
                 .isInstanceOf(IllegalArgumentException.class);
         verifyNoInteractions(rabbitTemplate);
     }
