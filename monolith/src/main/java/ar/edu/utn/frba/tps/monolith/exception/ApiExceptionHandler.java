@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -47,6 +48,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ErrorResponse> conflict(ConflictException exception) {
         return error(HttpStatus.CONFLICT, "conflict", exception.getMessage());
+    }
+
+    // RabbitMQ no disponible. Los controllers de messaging tienen su propio handler; fuera de ellos, la
+    // unica operacion que usa la cola es la condonacion, que encola el evento de auditoria en su misma
+    // transaccion: si la excepcion llega aca, la transaccion ya se revirtio y la deuda sigue pendiente.
+    @ExceptionHandler(AmqpException.class)
+    public ResponseEntity<ErrorResponse> rabbitUnavailable(AmqpException exception) {
+        log.warn("No se pudo encolar en RabbitMQ: {}", exception.getMessage());
+        return error(HttpStatus.SERVICE_UNAVAILABLE, "rabbitmq_unavailable",
+                "No se pudo encolar el evento de auditoría: la deuda no se condonó");
     }
 
     // Con @Validated en la clase, la validacion de parametros la hace AOP y no pasa por

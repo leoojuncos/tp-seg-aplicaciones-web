@@ -2,6 +2,7 @@ package ar.edu.utn.frba.tps.monolith.tesoreria.service;
 
 import ar.edu.utn.frba.tps.monolith.exception.ConflictException;
 import ar.edu.utn.frba.tps.monolith.exception.NotFoundException;
+import ar.edu.utn.frba.tps.monolith.messaging.service.AuditEventPublisher;
 import ar.edu.utn.frba.tps.monolith.tesoreria.dto.DebtResponse;
 import ar.edu.utn.frba.tps.monolith.tesoreria.mapper.TesoreriaMapper;
 import ar.edu.utn.frba.tps.monolith.tesoreria.model.Debt;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -19,11 +21,13 @@ public class DebtService {
 
     private final DebtRepository debtRepository;
     private final TesoreriaMapper mapper;
+    private final AuditEventPublisher auditEventPublisher;
 
     @Autowired
-    public DebtService(DebtRepository debtRepository, TesoreriaMapper mapper) {
+    public DebtService(DebtRepository debtRepository, TesoreriaMapper mapper, AuditEventPublisher auditEventPublisher) {
         this.debtRepository = debtRepository;
         this.mapper = mapper;
+        this.auditEventPublisher = auditEventPublisher;
     }
 
     /** Todas las deudas, ordenadas por CUIT, o solo la del CUIT pedido. */
@@ -43,8 +47,9 @@ public class DebtService {
     }
 
     /**
-     * Pasa la deuda a FORGIVEN y conserva su importe. Es transaccional para que lo que se sume a la
-     * condonacion, como la publicacion del evento de auditoria, se revierta con ella.
+     * Pasa la deuda a FORGIVEN, conserva su importe y le entrega el evento de auditoria al modulo
+     * messaging, en la misma transaccion: si el evento no se puede encolar, la excepcion revierte la
+     * condonacion. No hay condonacion sin evento.
      */
     @Transactional
     public DebtResponse forgive(Long id) {
@@ -53,6 +58,7 @@ public class DebtService {
             throw new ConflictException("La deuda " + id + " ya está condonada");
         }
         debt.forgive();
+        auditEventPublisher.publish(AuditEventPublisher.DEBT_FORGIVEN, debt.getCuit(), Instant.now());
         return mapper.toResponse(debt);
     }
 

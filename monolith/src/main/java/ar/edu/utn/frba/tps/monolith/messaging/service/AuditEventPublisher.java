@@ -26,6 +26,9 @@ import java.util.regex.Pattern;
 @Service
 public class AuditEventPublisher {
 
+    /** Tipo del evento de la condonacion de una deuda, como lo define docs/contracts.md. */
+    public static final String DEBT_FORGIVEN = "DEBT_FORGIVEN";
+
     private static final Pattern CUIT = Pattern.compile("\\d{11}");
 
     private final PendingEventRepository pendingEventRepository;
