@@ -109,13 +109,13 @@ curl -s http://localhost:8080/api/messaging/pending -H "Authorization: Bearer $T
 
 ## Tesorería module
 
-The `tesoreria` package holds the taxpayers' debts (`debts` table, one per CUIT) and their forgiveness. Forgiving a debt sets its status to `FORGIVEN` and keeps the original amount.
+The `tesoreria` package holds the taxpayers' debts (`debts` table, one per CUIT) and their forgiveness. Forgiving a debt sets its status to `FORGIVEN`, keeps the original amount and hands a `DEBT_FORGIVEN` audit event to the messaging module, in the same transaction: if the event can't be queued, the forgiveness is rolled back and the debt stays pending.
 
 | Endpoint | Returns |
 | --- | --- |
 | `GET /api/tesoreria/debts` | The debts, ordered by CUIT. With `?cuit=` (11 digits, no dashes), only that CUIT's debt. |
 | `GET /api/tesoreria/debts/{id}` | One debt. |
-| `POST /api/tesoreria/debts/{id}/forgive` | The forgiven debt, or `409` if it was already forgiven. |
+| `POST /api/tesoreria/debts/{id}/forgive` | The forgiven debt; `409` if it was already forgiven, or `503` (`rabbitmq_unavailable`) if the audit event couldn't be queued. |
 
 These endpoints require the SGM session cookie (`sgm_session`) with the `TESORERIA` permission. The cookie, the module gating and the error format are described in [`docs/contracts.md`](../docs/contracts.md).
 
