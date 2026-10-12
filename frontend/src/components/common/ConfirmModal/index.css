@@ -1,0 +1,7 @@
+/* El dato que destaca la confirmacion (highlight), como un importe: abajo del mensaje y mas grande. */
+.sgm-confirm-highlight {
+  margin: 0.75rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--sgm-text);
+}
