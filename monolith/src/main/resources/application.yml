@@ -22,6 +22,12 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:sgm}
     password: ${RABBITMQ_PASSWORD:sgm}
+  http:
+    client:
+      # El Diagnostico de Tesoreria consulta el modulo de mensajeria por HTTP: sin timeouts, un modulo que
+      # acepta la conexion pero no responde dejaria la pantalla esperando.
+      connect-timeout: 3s
+      read-timeout: 10s
 
 server:
   port: ${SERVER_PORT:8080}
@@ -35,3 +41,9 @@ app:
     queue: ${AUDITORIA_QUEUE:auditoria.events}
     # Vencimiento de las sesiones propias del modulo de mensajeria.
     session-ttl: ${MESSAGING_SESSION_TTL:30m}
+    # Acceso por HTTP a la API del modulo con la cuenta de solo lectura, como en Auditoria. Lo usa el
+    # Diagnostico de Tesoreria, que ademas lo expone (vulnerabilidad #3, ver AGENTS.md). Los defaults son
+    # los del contrato, para correr el monolito desde el IDE.
+    url: ${MONOLITH_URL:http://localhost:8080}
+    read-user: ${MESSAGING_READ_USER:auditoria_lector}
+    read-password: ${MESSAGING_READ_PASSWORD:Auditoria2026!}
