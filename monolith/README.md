@@ -108,6 +108,17 @@ TOKEN=$(curl -s -X POST http://localhost:8080/api/messaging/auth/login \
 curl -s http://localhost:8080/api/messaging/pending -H "Authorization: Bearer $TOKEN"
 ```
 
+## Administración module
+
+The `administracion` package is a read-only view of the SGM users and their permissions. It reuses the `User`, `Role` and `Permission` entities from the `auth` module. It's read-only on purpose: letting it assign permissions or reset passwords would be a shortcut past the login step of the scenario.
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /api/administracion/users` | The users, ordered by username, each with its role. |
+| `GET /api/administracion/users/{id}` | One user, with its role and its permission codes. |
+
+These endpoints require the SGM session cookie (`sgm_session`) with the `ADMINISTRACION` permission. The cookie, the module gating and the error format are described in [`docs/contracts.md`](../docs/contracts.md).
+
 ## Tesorería module
 
 The `tesoreria` package holds the taxpayers' debts (`debts` table, one per CUIT) and their forgiveness. Forgiving a debt sets its status to `FORGIVEN`, keeps the original amount and hands a `DEBT_FORGIVEN` audit event to the messaging module, in the same transaction: if the event can't be queued, the forgiveness is rolled back and the debt stays pending.
@@ -153,7 +164,7 @@ The `vep` package is the public debt lookup: anyone can check a CUIT's debt, wit
 ./mvnw test
 ```
 
-The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest`, `TesoreriaApiTest`, `DiagnosticsApiTest` and `VepApiTest` run the messaging, debts, diagnostics and VEP APIs against the real database, so they also need the tables from `db/init/` (see [Messaging module](#messaging-module)).
+The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest`, `TesoreriaApiTest`, `DiagnosticsApiTest`, `VepApiTest` and `AdministracionApiTest` run the messaging, debts, diagnostics, VEP and users APIs against the real database, so they also need the tables from `db/init/` (see [Messaging module](#messaging-module)).
 
 ## A note on timezones
 
