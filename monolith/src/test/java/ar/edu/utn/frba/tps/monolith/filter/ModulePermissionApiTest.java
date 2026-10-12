@@ -18,8 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Gating de modulos (TPS-15) contra la app real: las cookies se arman con el SessionCookieCodec real,
- * como en AuthApiTest. Administracion todavia no tiene endpoints: con el permiso, el pedido pasa el
- * filtro y llega a Spring MVC, que responde 404.
+ * como en AuthApiTest. Con el permiso del modulo, el pedido pasa el filtro y llega a su endpoint.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -76,9 +75,9 @@ class ModulePermissionApiTest {
     void administracionRequiresItsOwnPermission() throws Exception {
         mockMvc.perform(get("/api/administracion/users").cookie(sessionWith("TESORERIA")))
                 .andExpect(status().isForbidden());
-        // Con el permiso pasa el filtro: Administracion no tiene endpoints todavia, asi que 404.
+        // Con el permiso pasa el filtro y llega al listado de usuarios.
         mockMvc.perform(get("/api/administracion/users").cookie(sessionWith("ADMINISTRACION")))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 
     @Test
