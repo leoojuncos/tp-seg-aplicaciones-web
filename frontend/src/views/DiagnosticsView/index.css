@@ -1,0 +1,6 @@
+/* Hora de la ultima verificacion, al lado de Actualizar. */
+.diagnostics-checked {
+  align-self: center;
+  font-size: 12px;
+  color: var(--sgm-text-secondary);
+}

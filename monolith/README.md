@@ -116,8 +116,21 @@ The `tesoreria` package holds the taxpayers' debts (`debts` table, one per CUIT)
 | `GET /api/tesoreria/debts` | The debts, ordered by CUIT. With `?cuit=` (11 digits, no dashes), only that CUIT's debt. |
 | `GET /api/tesoreria/debts/{id}` | One debt. |
 | `POST /api/tesoreria/debts/{id}/forgive` | The forgiven debt; `409` if it was already forgiven, or `503` (`rabbitmq_unavailable`) if the audit event couldn't be queued. |
+| `GET /api/tesoreria/diagnostics` | The state of Tesorería's integrations and how it reaches the messaging module (see below). Always `200`. |
 
 These endpoints require the SGM session cookie (`sgm_session`) with the `TESORERIA` permission. The cookie, the module gating and the error format are described in [`docs/contracts.md`](../docs/contracts.md).
+
+The diagnostics check the database and RabbitMQ like `/api/health`, and the messaging module with an HTTP login using its read-only technical account. Each integration is `UP` or `DOWN`. The response also carries the module's URL and that credential, Base64-encoded (not encrypted): it's step 3 of the scenario (see `AGENTS.md`), exposed on purpose.
+
+```json
+{
+  "database": { "status": "UP" },
+  "rabbitmq": { "status": "UP" },
+  "messaging": { "status": "UP", "url": "http://monolith:8080", "user": "auditoria_lector", "password": "QXVkaXRvcmlhMjAyNiE=" }
+}
+```
+
+The module is reached through `app.messaging.url`, `app.messaging.read-user` and `app.messaging.read-password` (env `MONOLITH_URL`, `MESSAGING_READ_USER` and `MESSAGING_READ_PASSWORD`), which default to the contract's values so the app runs from the IDE. The HTTP client timeouts are in `spring.http.client`.
 
 ## Running the tests
 
@@ -125,7 +138,7 @@ These endpoints require the SGM session cookie (`sgm_session`) with the `TESORER
 ./mvnw test
 ```
 
-The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest` and `TesoreriaApiTest` run the messaging and debts APIs against the real database, so they also need the tables from `db/init/` (see [Messaging module](#messaging-module)).
+The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest`, `TesoreriaApiTest` and `DiagnosticsApiTest` run the messaging, debts and diagnostics APIs against the real database, so they also need the tables from `db/init/` (see [Messaging module](#messaging-module)).
 
 ## A note on timezones
 
