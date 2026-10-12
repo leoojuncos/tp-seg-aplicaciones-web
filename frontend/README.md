@@ -2,7 +2,7 @@
 
 React 18 + Vite app (`frontend/`) for the SGM, per [TPS-26](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-26). JavaScript only, no TypeScript.
 
-Besides the skeleton (the routing, the proxy to the two backends and a status screen), it has the common pieces from [TPS-27](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-27): the session (`src/context/SessionProvider.jsx`), the HTTP client (`src/api/http.js`), the styles (`src/styles/theme.css`, Bootstrap with the SGM palette) and the shared components in `src/components/common/`, each one documented in a comment at the top of its file. The code conventions are in [`AGENTS.md`](../AGENTS.md#convenciones-de-código). Login landed in [TPS-14](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-14); module gating in [TPS-15](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-15); the rest of the business screens land with their own tickets (VEP in TPS-21, and one ticket per module).
+Besides the skeleton (the routing, the proxy to the two backends and a status screen), it has the common pieces from [TPS-27](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-27): the session (`src/context/SessionProvider.jsx`), the HTTP client (`src/api/http.js`), the styles (`src/styles/theme.css`, Bootstrap with the SGM palette) and the shared components in `src/components/common/`, each one documented in a comment at the top of its file. The code conventions are in [`AGENTS.md`](../AGENTS.md#convenciones-de-código). Login landed in [TPS-14](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-14); module gating in [TPS-15](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-15); the public debt lookup (VEP) in [TPS-21](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-21); the rest of the business screens land with their own tickets (one ticket per module).
 
 ## Prerequisites
 
@@ -38,7 +38,7 @@ Routes are declared as arrays in `src/routes/public.js` (no session) and `src/ro
 | --- | --- | --- |
 | `/` | public | Redirects to `/welcome` with a session, or to `/login` without one. |
 | `/estado` | public | Status of both backends (`StatusView`). |
-| `/vep` | public | Public debt lookup (TPS-21). |
+| `/vep` | public | Public debt lookup by CUIT (`VepView`). |
 | `/login` | public, `guestOnly` | Login form. |
 | `/logout` | public | Calls `POST /api/auth/logout`, clears the session and goes to `/login`. |
 | `/unauthorized` | public | Expired session or no access: where a private route goes when the session lacks its permission `code`. |
