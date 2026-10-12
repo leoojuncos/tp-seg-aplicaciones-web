@@ -38,6 +38,9 @@ server:
   port: ${SERVER_PORT:8081}
 
 app:
+  auth:
+    # Cookie de sesion del SGM que lee el filtro de Auditoria. El mismo nombre que el monolito.
+    cookie-name: ${SGM_SESSION_COOKIE:sgm_session}
   rabbitmq:
     # Cola de eventos de auditoria. El monolito la declara con las mismas propiedades; el
     # formato del mensaje esta en docs/contracts.md.
