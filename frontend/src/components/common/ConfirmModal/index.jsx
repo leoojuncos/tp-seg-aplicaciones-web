@@ -1,13 +1,16 @@
 import Modal from '../Modal/index.jsx';
+import './index.css';
 
 // Pide confirmacion antes de una accion. Props: show (true), title ('Confirmación'), message (que va a
-// pasar, en una linea y terminando en una pregunta), confirmLabel ('Continuar'; tiene que responder la
+// pasar, en una linea y terminando en una pregunta), highlight (opcional: el dato que importa, como un
+// importe, abajo del mensaje, aparte y mas grande), confirmLabel ('Continuar'; tiene que responder la
 // pregunta), cancelLabel ('Cancelar'), danger (la accion es destructiva: confirmar va en rojo), busy
 // (deshabilita los botones mientras corre la accion), onConfirm y onCancel.
 export default function ConfirmModal({
   show = true,
   title = 'Confirmación',
   message,
+  highlight,
   confirmLabel = 'Continuar',
   cancelLabel = 'Cancelar',
   danger = false,
@@ -37,6 +40,7 @@ export default function ConfirmModal({
       }
     >
       <p className="mb-0">{message}</p>
+      {highlight && <p className="sgm-confirm-highlight">{highlight}</p>}
     </Modal>
   );
 }

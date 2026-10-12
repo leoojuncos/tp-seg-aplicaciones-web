@@ -132,13 +132,27 @@ The diagnostics check the database and RabbitMQ like `/api/health`, and the mess
 
 The module is reached through `app.messaging.url`, `app.messaging.read-user` and `app.messaging.read-password` (env `MONOLITH_URL`, `MESSAGING_READ_USER` and `MESSAGING_READ_PASSWORD`), which default to the contract's values so the app runs from the IDE. The HTTP client timeouts are in `spring.http.client`.
 
+## VEP module
+
+The `vep` package is the public debt lookup: anyone can check a CUIT's debt, without the SGM session. It reads the debts through `Debt` and `DebtRepository` from `tesoreria`, so it always shows the current status: a forgiven debt shows up as `FORGIVEN`, with its original amount.
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /api/vep/debts/{cuit}` | The CUIT's debt (11 digits, no dashes), without its internal `id`; `404` if the CUIT has no debt, or `400` if it isn't 11 digits. |
+
+`/api/vep/**` is public: it needs neither the session cookie nor a permission (see [`docs/contracts.md`](../docs/contracts.md)).
+
+```json
+{ "cuit": "20123456789", "amount": 15000.00, "status": "FORGIVEN" }
+```
+
 ## Running the tests
 
 ```bash
 ./mvnw test
 ```
 
-The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest`, `TesoreriaApiTest` and `DiagnosticsApiTest` run the messaging, debts and diagnostics APIs against the real database, so they also need the tables from `db/init/` (see [Messaging module](#messaging-module)).
+The tests need Postgres and RabbitMQ reachable (same as above): `MonolithApplicationTests` exercises the real connectivity checks, and `MessagingApiTest`, `TesoreriaApiTest`, `DiagnosticsApiTest` and `VepApiTest` run the messaging, debts, diagnostics and VEP APIs against the real database, so they also need the tables from `db/init/` (see [Messaging module](#messaging-module)).
 
 ## A note on timezones
 

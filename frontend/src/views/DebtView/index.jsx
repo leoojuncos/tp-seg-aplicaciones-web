@@ -85,7 +85,8 @@ export default function DebtView() {
       <ConfirmModal
         show={confirming}
         title="Condonar deuda"
-        message={`La deuda del CUIT ${formatCuit(debt?.cuit)} pasa a condonada y conserva su importe de ${formatAmount(debt?.amount)}. ¿Querés condonarla?`}
+        message={`La deuda del CUIT ${formatCuit(debt?.cuit)} pasa a condonada y conserva su importe. ¿Querés condonarla?`}
+        highlight={formatAmount(debt?.amount)}
         confirmLabel="Condonar"
         busy={busy}
         onConfirm={forgive}
