@@ -110,9 +110,11 @@ class ModulePermissionApiTest {
     void publicRoutesAreNotGated() throws Exception {
         mockMvc.perform(get("/api/health"))
                 .andExpect(status().isOk());
-        // VEP es publico: sin endpoints todavia, el pedido llega a Spring MVC (404), no se corta en 401/403.
-        mockMvc.perform(get("/api/vep/debts"))
-                .andExpect(status().isNotFound());
+        // VEP es publico: sin cookie, el pedido llega a su controller, que rechaza el CUIT mal formado con
+        // 400; no se corta en 401/403.
+        mockMvc.perform(get("/api/vep/debts/{cuit}", "123"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("validation"));
     }
 
     @Test
