@@ -222,7 +222,7 @@ hr {
   margin-top: 1.5rem;
 }
 
-/* Estado de un backend en StatusView: verde si responde UP, rojo si no. */
+/* Estado de un backend en StatusView o de una integracion en DiagnosticsView: verde si responde UP, rojo si no. */
 [data-status='UP'] {
   color: var(--sgm-green);
 }

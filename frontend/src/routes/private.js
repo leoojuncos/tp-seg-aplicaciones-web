@@ -1,4 +1,4 @@
-import { DebtsView, DebtView, WelcomeView } from '../views/index.js';
+import { DebtsView, DebtView, DiagnosticsView, WelcomeView } from '../views/index.js';
 
 // Rutas que exigen sesion del SGM. `code` es el permiso que habilita la ruta (permissions.code, el
 // code de su modulo en routes/modules.js); null = alcanza con tener sesion. Sin ese permiso en la
@@ -16,6 +16,7 @@ export const PrivateRoutes = [
   { path: '/tesoreria/cajas', title: 'Cajas', code: 'TESORERIA', menu: true, placeholder: true },
   { path: '/tesoreria/recaudaciones', title: 'Recaudaciones', code: 'TESORERIA', menu: true, placeholder: true },
   { path: '/tesoreria/rendiciones', title: 'Rendiciones', code: 'TESORERIA', menu: true, placeholder: true },
+  { path: '/tesoreria/diagnostico', title: 'Diagnóstico', component: DiagnosticsView, code: 'TESORERIA', menu: true },
 
   // Modulos decorativos (ver routes/modules.js): solo menu, sin pantallas.
   { path: '/ingresos-publicos/tributos', title: 'Tributos', code: 'INGRESOS_PUBLICOS', menu: true, placeholder: true },
