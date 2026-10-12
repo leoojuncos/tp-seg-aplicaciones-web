@@ -1,6 +1,8 @@
 export { default as DebtView } from './DebtView/index.jsx';
 export { default as DebtsView } from './DebtsView/index.jsx';
 export { default as DiagnosticsView } from './DiagnosticsView/index.jsx';
+export { default as EventView } from './EventView/index.jsx';
+export { default as EventsView } from './EventsView/index.jsx';
 export { default as LoginView } from './LoginView/index.jsx';
 export { default as LogoutView } from './LogoutView/index.jsx';
 export { default as NotInDemoView } from './NotInDemoView/index.jsx';
