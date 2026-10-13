@@ -16,3 +16,9 @@ export function formatAmount(amount) {
 export function formatDebtStatus(status) {
   return DEBT_STATUS[status] ?? status;
 }
+
+// formatRole: ADMINISTRADOR -> Administrador (capitaliza, sin mapa fijo). Los codigos de permiso no
+// se formatean: se muestran tal cual (ADMINISTRACION, TESORERIA, AUDITORIA).
+export function formatRole(role) {
+  return role ? role.charAt(0) + role.slice(1).toLowerCase() : '';
+}
