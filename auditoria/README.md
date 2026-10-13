@@ -57,13 +57,24 @@ Messages are consumed one at a time (prefetch 1), so when several are queued the
 
 The messaging API access is configured under `app.messaging` (`url`, `read-user`, `read-password`), defaulting to the contract's values so the micro runs from the IDE; inside docker-compose they come from `MONOLITH_URL`, `MESSAGING_READ_USER` and `MESSAGING_READ_PASSWORD`. The `audit_events` table is created by `db/init`, not by the app.
 
+## Querying audit events
+
+The registered events are read through Auditoría's own API; the front reaches it at `/auditoria/api/events` through its proxy.
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /api/events` | The registered events, most recent first. Optional query-param filters, combined: `module` (the SGM module), `cuit` (11 digits) and a registration-date range `from`/`to` (`YYYY-MM-DD`, inclusive, taken as the Argentine day — `America/Argentina/Buenos_Aires`, the zone the front displays dates in). E.g. `?module=TESORERIA&cuit=20123456789&from=2026-10-01&to=2026-10-31`. |
+| `GET /api/events/{id}` | One event. |
+
+These endpoints require the SGM session cookie with the `AUDITORIA` permission. Auditoría is a separate service, so it runs its own filter over `/api/**` (except `/api/health`), reading the same cookie as the monolith and answering with the SGM error format. The cookie name is `sgm_session` by default and is read from `app.auth.cookie-name` (env `SGM_SESSION_COOKIE`); it must match the monolith's. The cookie and the error format are described in [`docs/contracts.md`](../docs/contracts.md).
+
 ## Running the tests
 
 ```bash
 ./mvnw test
 ```
 
-The processing logic, the messaging client and the listener have unit tests that don't need any infrastructure. The context-load test (`AuditoriaApplicationTests`) does need Postgres and RabbitMQ reachable (same as above), since starting the context brings up the real connectivity checks and the queue listener — they're not mocked.
+The processing logic, the messaging client and the listener have unit tests that don't need any infrastructure. The context-load test (`AuditoriaApplicationTests`) and the events API test (`AuditoriaEventsApiTest`) do need Postgres and RabbitMQ reachable (same as above), since they start the real context — the connectivity checks, the queue listener and the `audit_events` table — not mocks.
 
 ## A note on timezones
 

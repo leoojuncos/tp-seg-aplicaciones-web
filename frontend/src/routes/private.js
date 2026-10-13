@@ -1,4 +1,4 @@
-import { DebtsView, DebtView, DiagnosticsView, UsersView, UserView, WelcomeView } from '../views/index.js';
+import { DebtsView, DebtView, DiagnosticsView, EventsView, EventView, UsersView, UserView, WelcomeView } from '../views/index.js';
 
 // Rutas que exigen sesion del SGM. `code` es el permiso que habilita la ruta (permissions.code, el
 // code de su modulo en routes/modules.js); null = alcanza con tener sesion. Sin ese permiso en la
@@ -21,6 +21,11 @@ export const PrivateRoutes = [
   { path: '/tesoreria/recaudaciones', title: 'Recaudaciones', code: 'TESORERIA', menu: true, placeholder: true },
   { path: '/tesoreria/rendiciones', title: 'Rendiciones', code: 'TESORERIA', menu: true, placeholder: true },
   { path: '/tesoreria/diagnostico', title: 'Diagnóstico', component: DiagnosticsView, code: 'TESORERIA', menu: true },
+
+  // Auditoria: eventos registrados (servidos por el micro de Auditoria, via /auditoria/api). Alertas es decorativa.
+  { path: '/auditoria/eventos', title: 'Eventos', component: EventsView, code: 'AUDITORIA', menu: true },
+  { path: '/auditoria/evento/:id', title: 'Evento', component: EventView, code: 'AUDITORIA' },
+  { path: '/auditoria/alertas', title: 'Alertas', code: 'AUDITORIA', menu: true, placeholder: true },
 
   // Modulos decorativos (ver routes/modules.js): solo menu, sin pantallas.
   { path: '/ingresos-publicos/tributos', title: 'Tributos', code: 'INGRESOS_PUBLICOS', menu: true, placeholder: true },
