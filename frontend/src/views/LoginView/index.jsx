@@ -3,6 +3,7 @@ import { Field, InputSecret, Message } from '../../components/common/index.js';
 import { errorMessage, postJson } from '../../api/http.js';
 import { useForm } from '../../hooks/useForm.js';
 import { useSession } from '../../hooks/useSession.js';
+import './index.css';
 
 export default function LoginView() {
   const [values, handleChange] = useForm({ username: '', password: '' });
@@ -37,12 +38,12 @@ export default function LoginView() {
   }
 
   return (
-    <section className="generic-page">
-      <span className="material-symbols-outlined generic-page-icon" aria-hidden="true">
-        login
+    <section className="generic-page login-page">
+      <span className="material-symbols-outlined login-logo" aria-hidden="true">
+        account_balance
       </span>
       <h2>Ingresar al SGM</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="login-form">
         <Field
           label="Usuario"
           name="username"
@@ -61,9 +62,11 @@ export default function LoginView() {
           disabled={submitting}
         />
         <Message type="error">{error}</Message>
-        <button type="submit" className="btn btn-primary" disabled={submitting}>
-          Ingresar
-        </button>
+        <div className="generic-page-actions">
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            Ingresar
+          </button>
+        </div>
       </form>
     </section>
   );
