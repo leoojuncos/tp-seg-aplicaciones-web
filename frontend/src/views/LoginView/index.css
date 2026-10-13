@@ -1,0 +1,38 @@
+/* Centrado vertical en el alto que deja el encabezado: mientras se muestra el login, el contenido de
+   AppLayout ocupa toda la ventana. Va con :has() para no cambiar el layout de las otras pantallas. */
+#root:has(.login-page) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+#root:has(.login-page) .app-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* margin: auto la centra en los dos ejes; el width hace falta porque, en un flex, el margen auto la
+   achicaria a su contenido. */
+.login-page {
+  width: 100%;
+  margin: auto;
+}
+
+/* Logo del SGM, el mismo de la marca del encabezado, en lugar del icono de las paginas genericas. */
+.login-logo {
+  font-size: 64px;
+  color: var(--sgm-green);
+}
+
+.login-page h2 {
+  margin-top: 1.5rem;
+}
+
+/* Formulario mas angosto que la pagina generica, con las etiquetas y el mensaje de error a la
+   izquierda. */
+.login-form {
+  max-width: 20rem;
+  margin: 2rem auto 0;
+  text-align: left;
+}
