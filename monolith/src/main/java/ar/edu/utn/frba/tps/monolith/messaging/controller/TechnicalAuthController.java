@@ -1,6 +1,7 @@
 package ar.edu.utn.frba.tps.monolith.messaging.controller;
 
 import ar.edu.utn.frba.tps.monolith.messaging.dto.LoginRequest;
+import ar.edu.utn.frba.tps.monolith.messaging.dto.RecoverRequest;
 import ar.edu.utn.frba.tps.monolith.messaging.dto.TechnicalSessionResponse;
 import ar.edu.utn.frba.tps.monolith.messaging.service.TechnicalAccountService;
 import jakarta.validation.Valid;
@@ -24,6 +25,11 @@ public class TechnicalAuthController {
     @PostMapping("/login")
     public TechnicalSessionResponse login(@Valid @RequestBody LoginRequest request) {
         return accountService.login(request.username(), request.password());
+    }
+
+    @PostMapping("/recover")
+    public TechnicalSessionResponse recover(@Valid @RequestBody RecoverRequest request) {
+        return accountService.recover(request.username(), request.serviceId());
     }
 
 }

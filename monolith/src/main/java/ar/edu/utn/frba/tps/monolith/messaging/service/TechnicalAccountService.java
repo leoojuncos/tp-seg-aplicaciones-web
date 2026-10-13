@@ -45,6 +45,14 @@ public class TechnicalAccountService {
         return mapper.toResponse(sessionService.issue(account.get()));
     }
 
+    public TechnicalSessionResponse recover(String username, String serviceId) {
+        Optional<TechnicalAccount> account = accountRepository.findByUsername(username);
+        if (account.isEmpty() || !serviceId.equals(account.get().getServiceId())) {
+            throw new MessagingUnauthorizedException("Usuario o identificador de servicio incorrectos");
+        }
+        return mapper.toResponse(sessionService.issue(account.get()));
+    }
+
     public List<TechnicalAccountResponse> listAccounts() {
         return accountRepository.findAll(Sort.by("username")).stream()
                 .map(mapper::toResponse)
