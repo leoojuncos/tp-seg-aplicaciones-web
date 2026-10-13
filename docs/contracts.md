@@ -96,6 +96,7 @@ La sesión es propia del módulo e independiente de la cookie de sesión del SGM
   { "token": "q8V3...", "username": "auditoria_lector", "role": "READ", "expiresAt": "2026-10-04T21:45:30Z" }
   ```
 
+- `POST /api/messaging/auth/recover` con `{ "username": "...", "serviceId": "..." }` recupera una sesión de una cuenta técnica a partir del usuario y del identificador de su servicio (`service_id`), sin la contraseña, y responde la misma sesión que el login. Un usuario inexistente o un `serviceId` que no coincide responden `401` con el mismo mensaje.
 - El resto de los endpoints pide el header `Authorization: Bearer <token>`.
 - El token vence a los 30 minutos (configurable con la variable `MESSAGING_SESSION_TTL`, por ejemplo `10m`).
 - Las sesiones viven en la memoria del monolito: si se reinicia, hay que volver a autenticarse.
@@ -105,6 +106,7 @@ La sesión es propia del módulo e independiente de la cookie de sesión del SGM
 | Método y ruta | Rol | Respuesta |
 | --- | --- | --- |
 | `POST /api/messaging/auth/login` | sin sesión | La sesión, como en el ejemplo de arriba. |
+| `POST /api/messaging/auth/recover` | sin sesión | La sesión, como en el ejemplo de arriba. |
 | `GET /api/messaging/accounts` | `READ` o `WRITE` | Las cuentas técnicas, sin contraseñas: `[{ "username", "role", "serviceId" }]`. |
 | `GET /api/messaging/queue` | `READ` o `WRITE` | El estado de la cola: `{ "queue": "auditoria.events", "messages": 0, "consumers": 1 }`. |
 | `GET /api/messaging/pending` | `READ` o `WRITE` | Los eventos con el formato del mensaje, del `timestamp` más reciente al más antiguo. |

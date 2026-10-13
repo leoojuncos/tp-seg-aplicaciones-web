@@ -54,6 +54,8 @@ class MessagingApiTest {
 
     private static final String USERNAME = "test_reader";
     private static final String PASSWORD = "test-password";
+    private static final String WRITER_USERNAME = "test_writer";
+    private static final String SERVICE_ID = "TEST-SERVICE";
 
     @Autowired
     private MockMvc mockMvc;
@@ -77,8 +79,9 @@ class MessagingApiTest {
     private RabbitTemplate rabbitTemplate;
 
     @BeforeEach
-    void createAccount() {
-        accountRepository.save(new TechnicalAccount(USERNAME, passwordEncoder.encode(PASSWORD), TechnicalRole.READ, "TEST-SERVICE"));
+    void createAccounts() {
+        accountRepository.save(new TechnicalAccount(USERNAME, passwordEncoder.encode(PASSWORD), TechnicalRole.READ, SERVICE_ID));
+        accountRepository.save(new TechnicalAccount(WRITER_USERNAME, passwordEncoder.encode(PASSWORD), TechnicalRole.WRITE, SERVICE_ID));
     }
 
     @Test
@@ -104,6 +107,46 @@ class MessagingApiTest {
     @Test
     void loginRequiresUsernameAndPassword() throws Exception {
         mockMvc.perform(post("/api/messaging/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("validation"));
+    }
+
+    @Test
+    void recoveryWithoutBearerIssuesASessionWithTheRoleOfTheAccount() throws Exception {
+        String response = mockMvc.perform(post("/api/messaging/auth/recover")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(recoverBody(WRITER_USERNAME, SERVICE_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(WRITER_USERNAME))
+                .andExpect(jsonPath("$.role").value("WRITE"))
+                .andReturn().getResponse().getContentAsString();
+
+        String token = objectMapper.readTree(response).get("token").asText();
+        mockMvc.perform(get("/api/messaging/accounts").header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void recoveryWithAWrongServiceIdOrUnknownUserIsRejectedTheSameWay() throws Exception {
+        String wrongServiceId = mockMvc.perform(post("/api/messaging/auth/recover")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(recoverBody(WRITER_USERNAME, "otro-servicio")))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("unauthorized"))
+                .andReturn().getResponse().getContentAsString();
+
+        mockMvc.perform(post("/api/messaging/auth/recover")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(recoverBody("nadie", SERVICE_ID)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().json(wrongServiceId));
+    }
+
+    @Test
+    void recoveryRequiresUsernameAndServiceId() throws Exception {
+        mockMvc.perform(post("/api/messaging/auth/recover")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())
@@ -191,7 +234,14 @@ class MessagingApiTest {
         return objectMapper.writeValueAsString(new LoginBody(username, password));
     }
 
+    private String recoverBody(String username, String serviceId) throws Exception {
+        return objectMapper.writeValueAsString(new RecoverBody(username, serviceId));
+    }
+
     private record LoginBody(String username, String password) {
+    }
+
+    private record RecoverBody(String username, String serviceId) {
     }
 
 }

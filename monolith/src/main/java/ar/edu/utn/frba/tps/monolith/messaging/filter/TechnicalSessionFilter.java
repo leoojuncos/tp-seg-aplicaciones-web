@@ -28,7 +28,7 @@ public class TechnicalSessionFilter extends OncePerRequestFilter {
 
     // Se compara la ruta exacta y no un prefijo, para que una ruta armada con segmentos como ".."
     // no pase como publica.
-    private static final Set<String> PUBLIC_PATHS = Set.of("/api/messaging/auth/login");
+    private static final Set<String> PUBLIC_PATHS = Set.of("/api/messaging/auth/login", "/api/messaging/auth/recover");
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final TechnicalSessionService sessionService;
