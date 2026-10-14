@@ -32,6 +32,8 @@ Ejemplo:
 
 El mensaje siempre sale con `status: PENDING`; el estado vigente se consulta en el módulo, no en el mensaje. Antes de registrar un evento, Auditoría pide `GET /api/messaging/pending/{id}` con la cuenta de solo lectura y lo registra solo si la respuesta es `200` con `status: PENDING`. Si responde `404` o `status: CANCELLED`, lo descarta.
 
+Un evento que Auditoría todavía no registró se da de baja con `POST /api/messaging/pending/{id}/cancel` desde una sesión `WRITE`: queda con `status: CANCELLED` y la fila se conserva, así que Auditoría lo descarta al consultarlo.
+
 ## Formato de error del SGM
 
 Todos los endpoints del monolito y de Auditoría responden los errores con el mismo cuerpo. `error` es un código estable, para que el front lo compare; `message` es el detalle, para mostrarlo.
@@ -111,6 +113,7 @@ La sesión es propia del módulo e independiente de la cookie de sesión del SGM
 | `GET /api/messaging/queue` | `READ` o `WRITE` | El estado de la cola: `{ "queue": "auditoria.events", "messages": 0, "consumers": 1 }`. |
 | `GET /api/messaging/pending` | `READ` o `WRITE` | Los eventos con el formato del mensaje, del `timestamp` más reciente al más antiguo. |
 | `GET /api/messaging/pending/{id}` | `READ` o `WRITE` | Un evento, con el formato del mensaje. |
+| `POST /api/messaging/pending/{id}/cancel` | `WRITE` | El evento dado de baja, con el formato del mensaje y `status: CANCELLED`. La fila no se borra. |
 
 Los errores responden `{ "error": "<código>", "message": "<detalle>" }`:
 
@@ -118,7 +121,9 @@ Los errores responden `{ "error": "<código>", "message": "<detalle>" }`:
 | --- | --- | --- |
 | 400 | `validation` | Falta un campo o tiene un formato inválido. |
 | 401 | `unauthorized` | Las credenciales no son válidas, o el token falta, no existe o venció. |
+| 403 | `forbidden` | La sesión no tiene el rol que pide la operación. |
 | 404 | `not_found` | El evento no existe. |
+| 409 | `conflict` | El evento ya está dado de baja. |
 | 503 | `rabbitmq_unavailable` | No se pudo consultar RabbitMQ. |
 
 Los demás errores (ruta inexistente, verbo o content-type no aceptado, error interno) usan los códigos generales del [formato de error del SGM](#formato-de-error-del-sgm).

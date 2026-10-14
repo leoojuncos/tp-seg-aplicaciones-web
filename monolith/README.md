@@ -96,6 +96,7 @@ The module has its own technical accounts (`technical_accounts` table) and its o
 | `GET /api/messaging/queue` | Messages and consumers of the audit queue. |
 | `GET /api/messaging/pending` | The audit events, newest first. |
 | `GET /api/messaging/pending/{id}` | One audit event. |
+| `POST /api/messaging/pending/{id}/cancel` | Cancels a pending audit event: it stays in the table with `CANCELLED`, so Auditoría skips it. |
 
 Payloads, the error format and the fixed technical accounts are in [`docs/contracts.md`](../docs/contracts.md). The tables come from `db/init/02-messaging-schema.sql`, which Postgres runs when the compose volume is created; if your local database predates that script, recreate it with `docker compose down -v`.
 
