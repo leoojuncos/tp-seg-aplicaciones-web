@@ -64,4 +64,8 @@ public class PendingEvent {
         return status;
     }
 
+    public void cancel() {
+        this.status = PendingEventStatus.CANCELLED;
+    }
+
 }
