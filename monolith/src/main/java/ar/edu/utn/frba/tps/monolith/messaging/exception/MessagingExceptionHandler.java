@@ -35,6 +35,16 @@ public class MessagingExceptionHandler {
         return error(HttpStatus.NOT_FOUND, "not_found", exception.getMessage());
     }
 
+    @ExceptionHandler(MessagingForbiddenException.class)
+    public ResponseEntity<ErrorResponse> forbidden(MessagingForbiddenException exception) {
+        return error(HttpStatus.FORBIDDEN, "forbidden", exception.getMessage());
+    }
+
+    @ExceptionHandler(MessagingConflictException.class)
+    public ResponseEntity<ErrorResponse> conflict(MessagingConflictException exception) {
+        return error(HttpStatus.CONFLICT, "conflict", exception.getMessage());
+    }
+
     @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class,
             MethodArgumentTypeMismatchException.class})
     public ResponseEntity<ErrorResponse> badRequest() {
