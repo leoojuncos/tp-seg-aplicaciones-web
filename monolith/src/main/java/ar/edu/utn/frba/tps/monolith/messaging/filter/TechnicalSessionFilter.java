@@ -39,6 +39,14 @@ public class TechnicalSessionFilter extends OncePerRequestFilter {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * La sesion que dejo este filtro en el request, o vacia si el filtro no corrio (las rutas publicas,
+     * que no la necesitan). Mismo acceso que {@code SessionCookieFilter.currentSession}.
+     */
+    public static Optional<TechnicalSession> currentSession(HttpServletRequest request) {
+        return Optional.ofNullable((TechnicalSession) request.getAttribute(SESSION_ATTRIBUTE));
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().substring(request.getContextPath().length());
