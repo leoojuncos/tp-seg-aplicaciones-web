@@ -1,8 +1,10 @@
 package ar.edu.utn.frba.tps.monolith.messaging;
 
 import ar.edu.utn.frba.tps.monolith.messaging.dto.AuditEventDto;
+import ar.edu.utn.frba.tps.monolith.messaging.model.PendingEventStatus;
 import ar.edu.utn.frba.tps.monolith.messaging.model.TechnicalAccount;
 import ar.edu.utn.frba.tps.monolith.messaging.model.TechnicalRole;
+import ar.edu.utn.frba.tps.monolith.messaging.repository.PendingEventRepository;
 import ar.edu.utn.frba.tps.monolith.messaging.repository.TechnicalAccountRepository;
 import ar.edu.utn.frba.tps.monolith.messaging.service.AuditEventPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,6 +66,9 @@ class MessagingApiTest {
     private TechnicalAccountRepository accountRepository;
 
     @Autowired
+    private PendingEventRepository pendingEventRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -90,6 +95,8 @@ class MessagingApiTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("unauthorized"));
         mockMvc.perform(get("/api/messaging/pending").header(AUTHORIZATION, "Bearer unknown"))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/api/messaging/pending/" + UUID.randomUUID() + "/cancel"))
                 .andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/messaging/auth/../accounts"))
                 .andExpect(status().isUnauthorized());
@@ -209,6 +216,71 @@ class MessagingApiTest {
     }
 
     @Test
+    void cancellingAPendingEventMarksItCancelledAndKeepsTheRow() throws Exception {
+        AuditEventDto event = publishEvent();
+        entityManager.clear();
+        String token = writerToken();
+
+        mockMvc.perform(post("/api/messaging/pending/{id}/cancel", event.id()).header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(event.id().toString()))
+                .andExpect(jsonPath("$.type").value(AuditEventPublisher.DEBT_FORGIVEN))
+                .andExpect(jsonPath("$.cuit").value("20123456789"))
+                .andExpect(jsonPath("$.timestamp").value("2026-10-04T21:15:30.123456Z"))
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+
+        // El service se une a la transaccion del test, asi que el UPDATE esta escrito pero sin
+        // confirmar: hay que forzar el flush antes de vaciar la cache para leer la fila de verdad.
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(pendingEventRepository.findById(event.id())).hasValueSatisfying(stored ->
+                assertThat(stored.getStatus()).isEqualTo(PendingEventStatus.CANCELLED));
+    }
+
+    @Test
+    void cancellingWithAReadSessionIsForbiddenEvenWhenTheEventDoesNotExist() throws Exception {
+        AuditEventDto event = publishEvent();
+        entityManager.clear();
+        String token = login();
+
+        mockMvc.perform(post("/api/messaging/pending/{id}/cancel", UUID.randomUUID()).header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("forbidden"));
+        mockMvc.perform(post("/api/messaging/pending/{id}/cancel", event.id()).header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isForbidden());
+
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(pendingEventRepository.findById(event.id())).hasValueSatisfying(stored ->
+                assertThat(stored.getStatus()).isEqualTo(PendingEventStatus.PENDING));
+    }
+
+    @Test
+    void unknownOrMalformedEventIdCannotBeCancelled() throws Exception {
+        String token = writerToken();
+
+        mockMvc.perform(post("/api/messaging/pending/{id}/cancel", UUID.randomUUID()).header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("not_found"));
+        mockMvc.perform(post("/api/messaging/pending/not-a-uuid/cancel").header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("validation"));
+    }
+
+    @Test
+    void cancellingTwiceConflicts() throws Exception {
+        AuditEventDto event = publishEvent();
+        entityManager.clear();
+        String token = writerToken();
+
+        mockMvc.perform(post("/api/messaging/pending/{id}/cancel", event.id()).header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/messaging/pending/{id}/cancel", event.id()).header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("conflict"));
+    }
+
+    @Test
     void queueStatusReportsTheAuditQueue() throws Exception {
         String token = login();
 
@@ -228,6 +300,21 @@ class MessagingApiTest {
                 .andExpect(jsonPath("$.role").value("READ"))
                 .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(response).get("token").asText();
+    }
+
+    private String writerToken() throws Exception {
+        String response = mockMvc.perform(post("/api/messaging/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody(WRITER_USERNAME, PASSWORD)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(WRITER_USERNAME))
+                .andExpect(jsonPath("$.role").value("WRITE"))
+                .andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(response).get("token").asText();
+    }
+
+    private AuditEventDto publishEvent() {
+        return publisher.publish(AuditEventPublisher.DEBT_FORGIVEN, "20123456789", Instant.parse("2026-10-04T21:15:30.123456789Z"));
     }
 
     private String loginBody(String username, String password) throws Exception {
