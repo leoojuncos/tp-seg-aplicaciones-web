@@ -10,13 +10,15 @@ INSERT INTO roles (code) VALUES
     ('OPERADOR'),
     ('INSPECTOR');
 
--- El usuario de soporte va primero: el paso 1 de la cadena cae en la primera fila de users.
+-- El auditor va primero: el paso 1 de la cadena cae en la primera fila de users, y con sus permisos
+-- (Auditoria e Ingresos Publicos) la unica pista de que existe Tesoreria es el selector de modulos
+-- del listado de Auditoria (paso 2).
 -- El resto son usuarios de relleno para que Administracion se vea realista. Las contrasenas
 -- van en BCrypt, generadas con crypt('<contrasena>', gen_salt('bf', 10)) de pgcrypto.
 INSERT INTO users (username, password_hash, role_id) VALUES
+    ('auditor',  '$2a$10$uN3euk1WQJxd8WW/HYT9vu7Y9Nr82tstHETRdRaTzP/BBTbFX3rsi', (SELECT id FROM roles WHERE code = 'AUDITOR')),        -- LupaFina58
     ('soporte',  '$2a$10$Kyx79pvRLhak.qlDpPuyT.5IYus4b8AbjxZ8NPqEEblCRmJd7B.gK', (SELECT id FROM roles WHERE code = 'SOPORTE')),        -- MesaDeAyuda41
     ('tesorero', '$2a$10$hngEqM6EbVUk09SBhGM24uIHVEvc0jZwGR3dRyavVsMUGi4wBLLZK', (SELECT id FROM roles WHERE code = 'TESORERO')),       -- CajaFuerte73
-    ('auditor',  '$2a$10$uN3euk1WQJxd8WW/HYT9vu7Y9Nr82tstHETRdRaTzP/BBTbFX3rsi', (SELECT id FROM roles WHERE code = 'AUDITOR')),        -- LupaFina58
     ('admin',    '$2a$10$foPV7tc44bQdhGnCPlUiueiMQfAdhPs7ZgGJ3rtccH7ftY4AiX/pW', (SELECT id FROM roles WHERE code = 'ADMINISTRADOR')),  -- LlaveMaestra92
     ('operador', '$2a$10$9pazoo5kDT70rwEwqnzVMOPhAQCb8Jd833/i1HtgW6L3gIg7JSiEy', (SELECT id FROM roles WHERE code = 'OPERADOR'));       -- VentanillaTres17
 
@@ -38,6 +40,7 @@ FROM (VALUES
     ('tesorero', 'INGRESOS_PUBLICOS'),
     ('tesorero', 'CONTADURIA'),
     ('auditor',  'AUDITORIA'),
+    ('auditor',  'INGRESOS_PUBLICOS'),
     ('admin',    'ADMINISTRACION'),
     ('admin',    'TESORERIA'),
     ('admin',    'AUDITORIA'),
