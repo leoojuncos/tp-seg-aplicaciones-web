@@ -24,6 +24,9 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -125,6 +128,13 @@ class LoginApiTest {
                         .content(loginBody("' OR '1'='1' --", "cualquier-cosa")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(firstUser.getUsername()))
+                // El paso 1 aterriza en el auditor del seed (TPS-29): sin Administracion ni Tesoreria,
+                // la unica pista de que existe Tesoreria es el selector de Auditoria (paso 2). Si un
+                // cambio del seed le vuelve a dar Administracion al primer usuario, esto falla.
+                .andExpect(jsonPath("$.username").value("auditor"))
+                .andExpect(jsonPath("$.permissions", containsInAnyOrder("AUDITORIA", "INGRESOS_PUBLICOS")))
+                .andExpect(jsonPath("$.permissions", not(hasItem("ADMINISTRACION"))))
+                .andExpect(jsonPath("$.permissions", not(hasItem("TESORERIA"))))
                 .andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("sgm_session=")));
     }
 

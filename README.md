@@ -62,9 +62,9 @@ El seed (`db/init/90-seed.sql`) carga los datos con los que se hace la demo:
 
 | Usuario | Contraseña | Rol | Permisos |
 | --- | --- | --- | --- |
+| `auditor` | `LupaFina58` | Auditor | Auditoría, Ingresos Públicos |
 | `soporte` | `MesaDeAyuda41` | Soporte | Administración, Auditoría |
 | `tesorero` | `CajaFuerte73` | Tesorero | Tesorería, Ingresos Públicos, Contaduría |
-| `auditor` | `LupaFina58` | Auditor | Auditoría |
 | `admin` | `LlaveMaestra92` | Administrador | Administración, Tesorería, Ingresos Públicos, Contaduría, Auditoría |
 | `operador` | `VentanillaTres17` | Operador | ninguno |
 

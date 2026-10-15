@@ -21,8 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Prueba la API de Administracion contra Postgres, con el seed de db/init/ (usuarios soporte,
- * tesorero, auditor, admin y operador). La cookie de sesion se arma con el SessionCookieCodec real,
+ * Prueba la API de Administracion contra Postgres, con el seed de db/init/ (usuarios auditor,
+ * soporte, tesorero, admin y operador, en ese orden). La cookie de sesion se arma con el SessionCookieCodec real,
  * como en TesoreriaApiTest.
  */
 @SpringBootTest
