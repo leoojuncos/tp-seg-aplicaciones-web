@@ -56,12 +56,34 @@ INSERT INTO technical_accounts (username, password_hash, role, service_id) VALUE
     ('auditoria_lector',   '$2a$10$ZK0qP7R9p/wICcTOCAKt9.ktRYVyC/VY.ez2lGvjop9HPT/Lb5LbG', 'READ',  'AUD-FISCAL'),
     ('auditoria_operador', '$2a$10$m29ldag9XFQ7swlxK5pQ4OTgyqhPwiemlnaly8z1bnpJ5C2e1mgK6', 'WRITE', 'AUD-FISCAL');
 
--- Deudas de ejemplo, una por CUIT y todas pendientes: una condonada de entrada no tendria su evento en
--- Auditoria. La primera es la de la demo, con el mismo CUIT del ejemplo del contrato del evento.
+-- Deudas de ejemplo, una por CUIT. Las seis primeras quedan PENDING: la primera es la de la demo, con
+-- el mismo CUIT del ejemplo del contrato del evento, y todavia no tiene evento en Auditoria. Las ultimas
+-- son condonaciones que ya ocurrieron: cada una tiene su DEBT_FORGIVEN en audit_events (mas abajo), asi
+-- el VEP las muestra Condonada y la pantalla de Auditoria arranca con historial en vez de vacia. Se
+-- mantiene el invariante del escenario: una deuda condonada siempre tiene su evento registrado.
 INSERT INTO debts (cuit, amount, status) VALUES
     ('20123456789',  15000.00, 'PENDING'),
     ('27283334444',  48250.50, 'PENDING'),
     ('30712345671', 312400.00, 'PENDING'),
     ('20301112220',   7300.00, 'PENDING'),
     ('30709998885', 125990.75, 'PENDING'),
-    ('23256667770',   2150.00, 'PENDING');
+    ('23256667770',   2150.00, 'PENDING'),
+    ('30711222093',  89000.00, 'FORGIVEN'),
+    ('27352221118',  15600.00, 'FORGIVEN'),
+    ('20284445556', 230750.00, 'FORGIVEN'),
+    ('33714567899',  51200.00, 'FORGIVEN'),
+    ('23399887771',   9900.00, 'FORGIVEN'),
+    ('20267778883',  42300.00, 'FORGIVEN');
+
+-- Historial de Auditoria: el DEBT_FORGIVEN de cada deuda ya condonada de arriba. occurred_at es cuando
+-- Tesoreria publico el evento y registered_at cuando Auditoria lo registro, unos minutos despues (la
+-- demora del procesamiento). Es el registro append-only que la cadena de ataque busca evitar: el CUIT de
+-- la demo (20123456789) no esta, y el objetivo del ensayo es que nunca llegue a aparecer. El id es un
+-- UUID cualquiera (gen_random_uuid, de pgcrypto): no hace falta que coincida con ninguna fila de messaging.
+INSERT INTO audit_events (id, type, cuit, occurred_at, registered_at) VALUES
+    (gen_random_uuid(), 'DEBT_FORGIVEN', '30711222093', '2026-10-03 09:15:00-03', '2026-10-03 09:18:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN', '27352221118', '2026-10-06 14:40:00-03', '2026-10-06 14:44:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN', '20284445556', '2026-10-09 11:05:00-03', '2026-10-09 11:09:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN', '33714567899', '2026-10-14 16:20:00-03', '2026-10-14 16:23:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN', '23399887771', '2026-10-17 10:50:00-03', '2026-10-17 10:54:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN', '20267778883', '2026-10-20 12:30:00-03', '2026-10-20 12:33:00-03');
