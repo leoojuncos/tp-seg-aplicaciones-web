@@ -82,6 +82,10 @@ curl http://localhost:8080/api/health
 
 If either dependency is down, `/api/health` responds `503` and reports which one, without crashing the app.
 
+## API docs (OpenAPI/Swagger)
+
+The OpenAPI spec is served at `/v3/api-docs` and a Swagger UI at `/swagger-ui.html` (`http://localhost:8080/swagger-ui.html`). They are **left open on purpose, without a session**: those paths are not under `/api/`, so the SGM filters don't gate them. The docs are scoped to `/api/messaging/**` (`springdoc.paths-to-match`) and titled as the messaging service, so Swagger reads as that internal service's own API. It's part of step 3 of the scenario (Security Misconfiguration, see `AGENTS.md`): an internal service exposing its API map — including its session-recovery endpoint — to anyone who can reach it.
+
 ## Messaging module
 
 The `messaging` package is the monolith's internal messaging module, the only part of the system that talks to the RabbitMQ queue. Other modules hand it audit events through `AuditEventPublisher`: it stores each event in the `pending_events` table, which is the source of truth, and puts it on the `auditoria.events` queue for the Auditoría service.
@@ -139,7 +143,7 @@ The diagnostics check the database and RabbitMQ like `/api/health`, and the mess
 {
   "database": { "status": "UP" },
   "rabbitmq": { "status": "UP" },
-  "messaging": { "status": "UP", "url": "http://monolith:8080", "user": "auditoria_lector", "password": "QXVkaXRvcmlhMjAyNiE=" }
+  "messaging": { "status": "UP", "url": "http://localhost:8080", "user": "auditoria_lector", "password": "QXVkaXRvcmlhMjAyNiE=" }
 }
 ```
 

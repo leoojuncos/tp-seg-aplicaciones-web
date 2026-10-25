@@ -44,6 +44,16 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
+        <!-- Documentacion OpenAPI/Swagger. A proposito queda servida sin sesion (las rutas /v3/api-docs
+             y /swagger-ui no estan bajo /api/, asi que los filtros del SGM no las tocan): es parte de la
+             vulnerabilidad #3 del escenario (Security Misconfiguration, ver AGENTS.md). Se acota a
+             /api/messaging/** (springdoc.paths-to-match en application.yml) para que se vea como la API
+             del servicio de mensajeria, que el atacante usa en el paso siguiente. -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.6</version>
+        </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

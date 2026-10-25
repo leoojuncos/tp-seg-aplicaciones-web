@@ -57,6 +57,11 @@ services:
       # llegar a funciones de superusuario.
       DB_USER: sgm_monolith
       DB_PASSWORD: sgm_monolith
+      # El monolito se alcanza a si mismo por localhost dentro de su contenedor. Lo fijamos asi (en vez
+      # del http://monolith:8080 del anchor) para que el Diagnostico de Tesoreria muestre localhost:8080,
+      # la misma direccion por la que el atacante le pega desde el host. Auditoria, en otro contenedor,
+      # mantiene el http://monolith:8080 del anchor.
+      MONOLITH_URL: http://localhost:8080
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:

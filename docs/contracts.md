@@ -86,7 +86,7 @@ La ruta se normaliza antes de elegir el módulo, así que segmentos como `..` no
 
 ## API del módulo de mensajería
 
-Endpoints del monolito bajo `/api/messaging/`. Dentro del docker-compose se llega por `MONOLITH_URL` (`http://monolith:8080`); desde el host, por `http://localhost:8080`; desde el front, por el mismo camino a través de su proxy de `/api`.
+Endpoints del monolito bajo `/api/messaging/`. Dentro del docker-compose, Auditoría los alcanza por `MONOLITH_URL` (`http://monolith:8080`) y el monolito a sí mismo por `http://localhost:8080` (el valor que además muestra el Diagnóstico); desde el host, por `http://localhost:8080`; desde el front, por el mismo camino a través de su proxy de `/api`.
 
 ### Sesión del módulo
 

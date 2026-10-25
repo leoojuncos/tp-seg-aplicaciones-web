@@ -32,6 +32,13 @@ spring:
 server:
   port: ${SERVER_PORT:8080}
 
+springdoc:
+  # Documentacion OpenAPI/Swagger, servida sin sesion a proposito (vulnerabilidad #3, ver AGENTS.md).
+  # La acotamos a /api/messaging/**: Swagger muestra solo la API del servicio de mensajeria (la que usa
+  # el atacante), no el resto de la API del monolito. Es la narrativa de "un servicio de mensajeria aparte".
+  paths-to-match:
+    - /api/messaging/**
+
 app:
   auth:
     # Nombre de la cookie de sesion del SGM (base64 sin firma, TPS-13).
