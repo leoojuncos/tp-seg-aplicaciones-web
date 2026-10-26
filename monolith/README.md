@@ -151,11 +151,12 @@ The module is reached through `app.messaging.url`, `app.messaging.read-user` and
 
 ## VEP module
 
-The `vep` package is the public debt lookup: anyone can check a CUIT's debt, without the SGM session. It reads the debts through `Debt` and `DebtRepository` from `tesoreria`, so it always shows the current status: a forgiven debt shows up as `FORGIVEN`, with its original amount.
+The `vep` package backs the taxpayer portal: the debt lookup by CUIT and the portal's login, both without the SGM session. It reads the debts through `Debt` and `DebtRepository` from `tesoreria`, so it always shows the current status: a forgiven debt shows up as `FORGIVEN`, with its original amount. The portal's credentials live in the `taxpayers` table (`Taxpayer`, BCrypt hashes checked with the `PasswordEncoder`, like the messaging accounts); the seed has one, for the demo CUIT.
 
 | Endpoint | Returns |
 | --- | --- |
 | `GET /api/vep/debts/{cuit}` | The CUIT's debt (11 digits, no dashes), without its internal `id`; `404` if the CUIT has no debt, or `400` if it isn't 11 digits. |
+| `POST /api/vep/auth/login` | Body `{ "cuit": "20123456789", "password": "..." }`. The taxpayer (`cuit` and `name`) if the password matches; the same `401` `unauthorized` whether the password is wrong or the CUIT has no credentials, and `400` if the CUIT isn't 11 digits. It doesn't open a session: the portal keeps the taxpayer on its side. |
 
 `/api/vep/**` is public: it needs neither the session cookie nor a permission (see [`docs/contracts.md`](../docs/contracts.md)).
 

@@ -1,0 +1,93 @@
+/* Banda gris de ancho completo con los accesos: icono en un circulo del color del portal y su nombre. */
+.vep-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  justify-content: center;
+  padding: 3rem 1rem;
+  margin-bottom: 2.5rem;
+  background-color: var(--portal-band);
+}
+
+.vep-shortcut {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+  width: 8rem;
+  font-size: 14px;
+  color: var(--portal-text);
+  text-align: center;
+  text-decoration: none;
+}
+
+.vep-shortcut:hover {
+  color: var(--portal-text);
+}
+
+.vep-shortcut-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  color: #fff;
+  background-color: var(--portal-primary);
+  border-radius: 50%;
+  box-shadow: 1px 1px 7px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s;
+}
+
+.vep-shortcut-icon .material-symbols-outlined {
+  font-size: 40px;
+  font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 48;
+}
+
+.vep-shortcut:hover .vep-shortcut-icon {
+  transform: scale(1.08);
+}
+
+.vep-debts {
+  max-width: 60rem;
+  padding: 0 1.25rem;
+  margin: 0 auto 3.5rem;
+}
+
+.vep-debts > * + * {
+  margin-top: 1rem;
+}
+
+.vep-debts h2 {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding-bottom: 0.6rem;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--portal-text);
+  border-bottom: 1px solid #ccc;
+}
+
+.vep-debts h2 .material-symbols-outlined {
+  font-size: 32px;
+  color: var(--portal-primary);
+}
+
+.vep-debt-status {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.vep-debt-status .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.vep-debt-status[data-debt-status='PENDING'] {
+  color: var(--portal-danger);
+}
+
+.vep-debt-status[data-debt-status='FORGIVEN'] {
+  color: var(--portal-success);
+}

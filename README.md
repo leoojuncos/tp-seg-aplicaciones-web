@@ -9,7 +9,8 @@ Sistema de Gestión Municipal (SGM) mínimo y **deliberadamente vulnerable**, pa
 - **Microservicio de Auditoría**: servicio aparte que se comunica con el monolito a través de RabbitMQ.
 - **RabbitMQ**: cola de mensajes, del lado del monolito. Tesorería publica los eventos a través del módulo de mensajería y el microservicio de Auditoría los consume.
 - **PostgreSQL**: una única base compartida.
-- **Frontend** (`frontend/`): React + Vite, el único origen con el que habla el navegador. Su proxy lleva `/api` al monolito y `/auditoria/api` a Auditoría, así la cookie de sesión llega a los dos sin CORS.
+- **Frontend** (`frontend/`): React + Vite, el único origen del SGM con el que habla el navegador. Su proxy lleva `/api` al monolito y `/auditoria/api` a Auditoría, así la cookie de sesión llega a los dos sin CORS.
+- **Portal del contribuyente** (también en `frontend/`): otra app, en su propio puerto, que hace de sitio del municipio para el contribuyente. El contribuyente entra con su CUIT y su clave, y ve sus deudas desde el VEP del monolito. Su proxy solo lleva `/api/vep`.
 - Todo se levanta con un único `docker-compose`.
 
 Los contratos entre las partes (el formato del evento, la API del módulo de mensajería y sus cuentas técnicas) están en [`docs/contracts.md`](docs/contracts.md).
@@ -38,13 +39,14 @@ Hace falta Docker con Compose. Desde la raíz del repo:
 docker compose up -d --build
 ```
 
-Levanta Postgres, RabbitMQ, el monolito, Auditoría y el front. Las apps arrancan cuando Postgres terminó de inicializar la base y RabbitMQ acepta conexiones. `--build` va siempre: sin él, Compose reusa las imágenes anteriores y no toma los cambios del código.
+Levanta Postgres, RabbitMQ, el monolito, Auditoría, el front y el portal del contribuyente. Las apps arrancan cuando Postgres terminó de inicializar la base y RabbitMQ acepta conexiones. `--build` va siempre: sin él, Compose reusa las imágenes anteriores y no toma los cambios del código.
 
 Los puertos se publican solo en `127.0.0.1`:
 
 | Servicio | Dirección |
 | --- | --- |
 | Front | http://localhost:5173 (pide login; `/estado` muestra el estado de los dos backends) |
+| Portal del contribuyente | http://localhost:5174 (CUIT `20123456789`, clave `123456`) |
 | Monolito | http://localhost:8080/api/health |
 | Auditoría | http://localhost:8081/api/health |
 | UI de RabbitMQ | http://localhost:15672 (usuario y contraseña `sgm`) |
@@ -52,7 +54,7 @@ Los puertos se publican solo en `127.0.0.1`:
 
 En el primer arranque, Postgres corre los scripts de `db/init/`. `docker compose down -v` borra la base: el próximo `up` la vuelve a crear desde esos scripts.
 
-Para correr una app desde el IDE, levantar solo Postgres y RabbitMQ con `docker compose up -d postgres rabbitmq`; el front se corre con `npm run dev` desde `frontend/`. El README de cada servicio lo explica.
+Para correr una app desde el IDE, levantar solo Postgres y RabbitMQ con `docker compose up -d postgres rabbitmq`; el front se corre con `npm run dev` y el portal con `npm run dev:portal`, desde `frontend/`. El README de cada servicio lo explica.
 
 Si siguen corriendo los contenedores `sgm-postgres` y `sgm-rabbit` que indicaban antes los README de los servicios, ocupan los mismos puertos y el `up` falla. Se borran con `docker rm -f sgm-postgres sgm-rabbit`.
 
@@ -70,7 +72,7 @@ El seed (`db/init/90-seed.sql`) carga los datos con los que se hace la demo:
 
 Ingresos Públicos y Contaduría son módulos decorativos, para que el sistema se vea completo: aparecen en el home según el permiso, como los demás, pero sus pantallas solo dicen "Sección fuera de la demo".
 
-Hay doce deudas de ejemplo, una por CUIT: seis pendientes y seis ya condonadas, cada una con su evento en Auditoría, que además trae historial de todos los módulos. La de la demo es la del CUIT `20123456789`, por $15.000, pendiente y sin ningún evento en Auditoría. Las cuentas técnicas del módulo de mensajería están en [`docs/contracts.md`](docs/contracts.md).
+Hay doce deudas de ejemplo, una por CUIT: seis pendientes y seis ya condonadas, cada una con su evento en Auditoría, que además trae historial de todos los módulos. La de la demo es la del CUIT `20123456789`, por $15.000, pendiente y sin ningún evento en Auditoría. Ese contribuyente entra al portal con la clave `123456`. Las cuentas técnicas del módulo de mensajería están en [`docs/contracts.md`](docs/contracts.md).
 
 Lo que cambia una demo, como una deuda condonada, queda guardado en la base. Para volver a estos datos: `docker compose down -v` y otra vez `up`.
 

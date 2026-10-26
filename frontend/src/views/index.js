@@ -11,5 +11,4 @@ export { default as StatusView } from './StatusView/index.jsx';
 export { default as UnauthorizedView } from './UnauthorizedView/index.jsx';
 export { default as UserView } from './UserView/index.jsx';
 export { default as UsersView } from './UsersView/index.jsx';
-export { default as VepView } from './VepView/index.jsx';
 export { default as WelcomeView } from './WelcomeView/index.jsx';

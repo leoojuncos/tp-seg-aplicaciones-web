@@ -1,4 +1,4 @@
--- Esquema base del SGM: roles, usuarios, permisos y deudas.
+-- Esquema base del SGM: roles, usuarios, permisos, deudas y contribuyentes del portal.
 -- Postgres corre los scripts de db/init/ en el primer arranque del docker-compose y el CI los
 -- aplica antes de los tests: las apps no crean tablas. Las entidades User, Role, Permission y
 -- Debt mapean estas tablas tal cual.
@@ -47,4 +47,13 @@ CREATE TABLE debts (
     cuit   VARCHAR(11)    NOT NULL UNIQUE,
     amount NUMERIC(12, 2) NOT NULL CHECK (amount >= 0),
     status VARCHAR(20)    NOT NULL CHECK (status IN ('PENDING', 'FORGIVEN'))
+);
+
+-- Contribuyentes con clave para el portal del contribuyente: entran con su CUIT y su clave, y el
+-- portal les muestra la deuda de ese CUIT. La entidad Taxpayer (modulo vep) mapea esta tabla.
+CREATE TABLE taxpayers (
+    cuit          VARCHAR(11)  PRIMARY KEY,
+    name          VARCHAR(100) NOT NULL,
+    -- Hash BCrypt, como el de users; el VEP lo verifica con el PasswordEncoder, no en la consulta.
+    password_hash VARCHAR(100) NOT NULL
 );

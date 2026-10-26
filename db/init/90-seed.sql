@@ -75,6 +75,11 @@ INSERT INTO debts (cuit, amount, status) VALUES
     ('23399887771',   9900.00, 'FORGIVEN'),
     ('20267778883',  42300.00, 'FORGIVEN');
 
+-- Contribuyente con clave para el portal: solo el de la deuda de la demo, que es con el que se entra
+-- para ver su deuda antes y despues de la condonacion. BCrypt, generado como los de users.
+INSERT INTO taxpayers (cuit, name, password_hash) VALUES
+    ('20123456789', 'Martín Gómez', '$2a$10$Ef2qBUdU098N0CfP3Vo8D.iUEw7gkIBwPCgEsnjiqFVgE5d44Ww5e');  -- 123456
+
 -- Historial de Auditoria: eventos de todos los modulos, la mayoria de Tesoreria, para que la pantalla
 -- de Auditoria arranque con movimiento y se vea que cada operacion deja registro. Cada deuda de arriba
 -- tiene su alta (DEBT_CREATED), anterior a su condonacion, y cada condonada su DEBT_FORGIVEN: ese es el

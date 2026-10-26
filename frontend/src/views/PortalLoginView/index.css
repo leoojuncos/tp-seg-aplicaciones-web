@@ -1,0 +1,35 @@
+/* Banda del color del portal con el formulario centrado en una tarjeta blanca, como la pantalla de
+   ingreso del portal del municipio. */
+.portal-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60dvh;
+  padding: 3rem 1rem;
+  background-color: var(--portal-primary);
+}
+
+.portal-login-form {
+  width: 100%;
+  max-width: 24rem;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.portal-login-form > * + * {
+  margin-top: 1rem;
+}
+
+.portal-login-form h1 {
+  margin-bottom: 1.5rem;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--portal-primary);
+  text-align: center;
+}
+
+.portal-login-form .btn {
+  width: 100%;
+}

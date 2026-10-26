@@ -1,2 +1,2 @@
-/** Portal publico del VEP, bajo /api/vep/: la consulta de la deuda de un CUIT, sin sesion. */
+/** VEP, bajo /api/vep/: la deuda de un CUIT y el ingreso del portal del contribuyente, sin la sesion del SGM. */
 package ar.edu.utn.frba.tps.monolith.vep;

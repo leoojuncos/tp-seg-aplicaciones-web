@@ -1,0 +1,190 @@
+/* Paleta propia del portal del contribuyente: es otro sitio, asi que no usa los colores del SGM de
+   theme.css. Las variables cuelgan de .portal para que las usen tambien las pantallas del portal. */
+.portal {
+  --portal-primary: #74489c;
+  --portal-primary-dark: #5e3a80;
+  --portal-band: #f1f2f2;
+  --portal-footer: #dee0e4;
+  --portal-text: #231f20;
+  --portal-text-secondary: #6d6f71;
+  --portal-danger: #dc3545;
+  --portal-success: #198754;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  color: var(--portal-text);
+  background-color: #fff;
+}
+
+/* El boton principal del portal (Ingresar) va con su color, no con el verde del SGM. */
+.portal .btn-primary {
+  --bs-btn-bg: var(--portal-primary);
+  --bs-btn-border-color: var(--portal-primary);
+  --bs-btn-hover-bg: var(--portal-primary-dark);
+  --bs-btn-hover-border-color: var(--portal-primary-dark);
+  --bs-btn-active-bg: var(--portal-primary-dark);
+  --bs-btn-active-border-color: var(--portal-primary-dark);
+  --bs-btn-disabled-bg: var(--portal-primary);
+  --bs-btn-disabled-border-color: var(--portal-primary);
+}
+
+.portal-topbar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 2.5rem;
+  color: #fff;
+  background-color: var(--portal-primary);
+}
+
+.portal-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  padding: 0;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  list-style: none;
+}
+
+.portal-contact li {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.portal-contact .material-symbols-outlined {
+  font-size: 17px;
+}
+
+.portal-user .btn {
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-border-color: transparent;
+  padding: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.portal-user .dropdown-menu {
+  --bs-dropdown-font-size: 14px;
+}
+
+.portal-user .dropdown-item:active {
+  color: var(--portal-text);
+  background-color: var(--portal-band);
+}
+
+.portal-navbar {
+  --bs-navbar-color: var(--portal-text);
+  --bs-navbar-hover-color: var(--portal-primary);
+  --bs-navbar-active-color: var(--portal-primary);
+  --bs-navbar-nav-link-padding-x: 0.9rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.6rem 2.5rem;
+  background-color: #fff;
+  border-bottom: 1px solid #ccc;
+}
+
+.portal-brand {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--portal-primary);
+}
+
+.portal-brand:hover {
+  color: var(--portal-primary-dark);
+}
+
+.portal-brand .material-symbols-outlined {
+  font-size: 40px;
+}
+
+.portal-brand span {
+  display: flex;
+  flex-direction: column;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.portal-brand small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--portal-text-secondary);
+}
+
+.portal-navbar .nav-link.active {
+  font-weight: 700;
+}
+
+.portal-main {
+  flex: 1;
+}
+
+.portal-footer {
+  padding: 2rem 1.25rem 3rem;
+  background-color: var(--portal-footer);
+}
+
+.portal-footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  max-width: 60rem;
+  padding: 2rem 1.25rem;
+  margin: 0 auto;
+  border-bottom: 2px solid var(--portal-primary);
+}
+
+.portal-footer-content section {
+  min-width: 14rem;
+  padding-left: 1.25rem;
+  border-left: 1px solid #fff;
+}
+
+.portal-footer h3 {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--portal-primary);
+}
+
+.portal-footer h3 .material-symbols-outlined {
+  font-size: 18px;
+  border: 1px solid var(--portal-primary);
+  border-radius: 50%;
+}
+
+.portal-footer p {
+  margin-bottom: 0.4rem;
+  font-size: 13px;
+}
+
+@media (max-width: 767.98px) {
+  .portal-topbar,
+  .portal-navbar {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .portal-contact {
+    display: none;
+  }
+
+  .portal-user {
+    margin-left: auto;
+  }
+}

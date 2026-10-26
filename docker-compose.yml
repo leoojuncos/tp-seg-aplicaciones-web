@@ -92,5 +92,17 @@ services:
       - monolith
       - auditoria
 
+  # Portal del contribuyente: otra app del mismo proyecto del front (vite.portal.config.js), en su
+  # propio puerto, como un sitio aparte del SGM. Su proxy solo lleva /api/vep al monolito.
+  portal:
+    build: ./frontend
+    command: ["npm", "run", "dev:portal", "--", "--host", "0.0.0.0"]
+    environment:
+      MONOLITH_URL: http://monolith:8080
+    ports:
+      - "127.0.0.1:5174:5174"
+    depends_on:
+      - monolith
+
 volumes:
   postgres-data:

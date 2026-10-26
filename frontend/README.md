@@ -1,8 +1,8 @@
 # Frontend
 
-React 18 + Vite app (`frontend/`) for the SGM, per [TPS-26](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-26). JavaScript only, no TypeScript.
+React 18 + Vite app (`frontend/`) for the SGM, per [TPS-26](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-26). JavaScript only, no TypeScript. The same project also holds a second app, the taxpayer portal (see [Taxpayer portal](#taxpayer-portal)).
 
-Besides the skeleton (the routing, the proxy to the two backends and a status screen), it has the common pieces from [TPS-27](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-27): the session (`src/context/SessionProvider.jsx`), the HTTP client (`src/api/http.js`), the styles (`src/styles/theme.css`, Bootstrap with the SGM palette) and the shared components in `src/components/common/`, each one documented in a comment at the top of its file. The code conventions are in [`AGENTS.md`](../AGENTS.md#convenciones-de-código). Login landed in [TPS-14](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-14); module gating in [TPS-15](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-15); the public debt lookup (VEP) in [TPS-21](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-21); the rest of the business screens land with their own tickets (one ticket per module).
+Besides the skeleton (the routing, the proxy to the two backends and a status screen), it has the common pieces from [TPS-27](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-27): the session (`src/context/SessionProvider.jsx`), the HTTP client (`src/api/http.js`), the styles (`src/styles/theme.css`, Bootstrap with the SGM palette) and the shared components in `src/components/common/`, each one documented in a comment at the top of its file. The code conventions are in [`AGENTS.md`](../AGENTS.md#convenciones-de-código). Login landed in [TPS-14](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-14); module gating in [TPS-15](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-15); the VEP in [TPS-21](https://frba-team-zh8igc5a.atlassian.net/browse/TPS-21), now the taxpayer portal; the rest of the business screens land with their own tickets (one ticket per module).
 
 ## Prerequisites
 
@@ -38,7 +38,6 @@ Routes are declared as arrays in `src/routes/public.js` (no session) and `src/ro
 | --- | --- | --- |
 | `/` | public | Redirects to `/welcome` with a session, or to `/login` without one. |
 | `/estado` | public | Status of both backends (`StatusView`). |
-| `/vep` | public | Public debt lookup by CUIT (`VepView`). |
 | `/login` | public, `guestOnly` | Login form. |
 | `/logout` | public | Calls `POST /api/auth/logout`, clears the session and goes to `/login`. |
 | `/unauthorized` | public | Expired session or no access: where a private route goes when the session lacks its permission `code`. |
@@ -58,14 +57,21 @@ Every private route goes through `PrivateRoute` (`src/components/common/PrivateR
 3. For a new module, add it to `src/routes/modules.js`.
 4. Call the backend through `src/api/http.js` (`getJson`, `postJson`, …) with relative paths; the session cookie travels on its own.
 
+## Taxpayer portal
+
+A second app in the same project: the municipality's site for the taxpayer, separate from the SGM. It runs on its own port with `npm run dev:portal` (http://localhost:5174, `strictPort` too), from `vite.portal.config.js`: its root is `portal/` (`index.html` and `main.jsx`) and the rest of its code lives in `src/` like the SGM's. The taxpayer logs in with their CUIT and password (`PortalLoginView`, through `POST /api/vep/auth/login`) and only sees their debts and status (`VepView`, through `GET /api/vep/debts/{cuit}`); `/salir` logs out, and everything else is a `placeholder: true` route. The back doesn't keep a portal session: `PortalSessionProvider` keeps the logged-in taxpayer in `sessionStorage`, and every route but `/ingresar` sends to it without one.
+
+- `src/PortalApp.jsx` builds its routes from `src/routes/portal.js`, all inside `PortalLayout` (`src/components/layout/PortalLayout/`), which has the portal's own palette. Its views are imported by path, not from `src/views/index.js`, so the portal doesn't load the SGM screens; it doesn't use `SessionProvider` either.
+- Its proxy only forwards `/api/vep/**` to the monolith (`MONOLITH_URL`, default `http://localhost:8080`): the rest of the monolith and Auditoría are not reachable from the portal.
+
 ## Building
 
 ```bash
 npm run build
 ```
 
-Writes the static bundle to `dist/` (ignored by git). The CI runs `npm ci` and `npm run build` on every PR.
+Builds both apps: the SGM to `dist/` and the taxpayer portal to `dist/portal/` (ignored by git). The CI runs `npm ci` and `npm run build` on every PR.
 
 ## Docker
 
-The `frontend` service in the compose builds `frontend/Dockerfile` (Node 22) and runs the Vite dev server with the code copied into the image, like the backends: changes need `docker compose up -d --build`. The port is published only on `127.0.0.1:5173`.
+The `frontend` service in the compose builds `frontend/Dockerfile` (Node 22) and runs the Vite dev server with the code copied into the image, like the backends: changes need `docker compose up -d --build`. The port is published only on `127.0.0.1:5173`. The `portal` service builds the same image and runs `npm run dev:portal` instead, published on `127.0.0.1:5174`.
