@@ -30,6 +30,8 @@ Ejemplo:
 }
 ```
 
+`DEBT_FORGIVEN` es el único tipo que publica el sistema. El seed (`db/init/90-seed.sql`) trae además, ya registrados en Auditoría, eventos de historial de todos los módulos con otros tipos (altas de deuda, emisiones de boleta, presentaciones de DDJJ, altas de usuario, etc.). Nadie los publica: Auditoría solo los lista y los filtra por módulo.
+
 El mensaje siempre sale con `status: PENDING`; el estado vigente se consulta en el módulo, no en el mensaje. Antes de registrar un evento, Auditoría pide `GET /api/messaging/pending/{id}` con la cuenta de solo lectura y lo registra solo si la respuesta es `200` con `status: PENDING`. Si responde `404` o `status: CANCELLED`, lo descarta.
 
 Un evento que Auditoría todavía no registró se da de baja con `POST /api/messaging/pending/{id}/cancel` desde una sesión `WRITE`: queda con `status: CANCELLED` y la fila se conserva, así que Auditoría lo descarta al consultarlo.

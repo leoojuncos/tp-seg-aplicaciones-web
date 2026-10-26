@@ -100,6 +100,17 @@ class AuditoriaEventsApiTest {
     }
 
     @Test
+    void listFilteredByModuleUsesTheModuleOfEachType() throws Exception {
+        AuditEvent userCreated = repository.saveAndFlush(
+                new AuditEvent(UUID.randomUUID(), "USER_CREATED", "20321114446", OCCURRED, REGISTERED));
+
+        mockMvc.perform(get("/api/events").param("module", "ADMINISTRACION").cookie(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == '" + userCreated.getId() + "')]").exists())
+                .andExpect(jsonPath("$[?(@.id == '" + event.getId() + "')]").doesNotExist());
+    }
+
+    @Test
     void listFilteredByItsCuitReturnsTheEvent() throws Exception {
         mockMvc.perform(get("/api/events").param("cuit", "20123456789").cookie(session))
                 .andExpect(status().isOk())

@@ -75,15 +75,59 @@ INSERT INTO debts (cuit, amount, status) VALUES
     ('23399887771',   9900.00, 'FORGIVEN'),
     ('20267778883',  42300.00, 'FORGIVEN');
 
--- Historial de Auditoria: el DEBT_FORGIVEN de cada deuda ya condonada de arriba. occurred_at es cuando
--- Tesoreria publico el evento y registered_at cuando Auditoria lo registro, unos minutos despues (la
--- demora del procesamiento). Es el registro append-only que la cadena de ataque busca evitar: el CUIT de
--- la demo (20123456789) no esta, y el objetivo del ensayo es que nunca llegue a aparecer. El id es un
--- UUID cualquiera (gen_random_uuid, de pgcrypto): no hace falta que coincida con ninguna fila de messaging.
+-- Historial de Auditoria: eventos de todos los modulos, la mayoria de Tesoreria, para que la pantalla
+-- de Auditoria arranque con movimiento y se vea que cada operacion deja registro. Cada deuda de arriba
+-- tiene su alta (DEBT_CREATED), anterior a su condonacion, y cada condonada su DEBT_FORGIVEN: ese es el
+-- registro que la cadena de ataque busca evitar. Por eso el CUIT de la demo (20123456789) no aparece en
+-- ningun evento, de ningun tipo, y el objetivo del ensayo es que nunca llegue a aparecer. La condonacion
+-- es el unico tipo que publica el sistema (ver docs/contracts.md); los demas son solo historial, y
+-- Auditoria los asigna a su modulo en AuditEventService. occurred_at es cuando ocurrio el hecho y
+-- registered_at cuando Auditoria lo registro, unos minutos despues (la demora del procesamiento). El id
+-- es un UUID cualquiera (gen_random_uuid, de pgcrypto): no hace falta que coincida con ninguna fila de
+-- messaging.
 INSERT INTO audit_events (id, type, cuit, occurred_at, registered_at) VALUES
-    (gen_random_uuid(), 'DEBT_FORGIVEN', '30711222093', '2026-10-03 09:15:00-03', '2026-10-03 09:18:00-03'),
-    (gen_random_uuid(), 'DEBT_FORGIVEN', '27352221118', '2026-10-06 14:40:00-03', '2026-10-06 14:44:00-03'),
-    (gen_random_uuid(), 'DEBT_FORGIVEN', '20284445556', '2026-10-09 11:05:00-03', '2026-10-09 11:09:00-03'),
-    (gen_random_uuid(), 'DEBT_FORGIVEN', '33714567899', '2026-10-14 16:20:00-03', '2026-10-14 16:23:00-03'),
-    (gen_random_uuid(), 'DEBT_FORGIVEN', '23399887771', '2026-10-17 10:50:00-03', '2026-10-17 10:54:00-03'),
-    (gen_random_uuid(), 'DEBT_FORGIVEN', '20267778883', '2026-10-20 12:30:00-03', '2026-10-20 12:33:00-03');
+    -- Tesoreria
+    (gen_random_uuid(), 'DEBT_CREATED',              '30711222093', '2026-09-02 10:12:00-03', '2026-09-02 10:15:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '27352221118', '2026-09-04 11:30:00-03', '2026-09-04 11:34:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '20284445556', '2026-09-08 09:45:00-03', '2026-09-08 09:48:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '27283334444', '2026-09-10 12:05:00-03', '2026-09-10 12:09:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '33714567899', '2026-09-15 15:20:00-03', '2026-09-15 15:23:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '30712345671', '2026-09-18 10:40:00-03', '2026-09-18 10:43:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '23399887771', '2026-09-22 13:10:00-03', '2026-09-22 13:14:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '20301112220', '2026-09-25 09:25:00-03', '2026-09-25 09:28:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '20267778883', '2026-09-29 16:00:00-03', '2026-09-29 16:04:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '30709998885', '2026-10-01 11:15:00-03', '2026-10-01 11:18:00-03'),
+    (gen_random_uuid(), 'PAYMENT_SLIP_ISSUED',       '27283334444', '2026-10-02 09:50:00-03', '2026-10-02 09:53:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN',             '30711222093', '2026-10-03 09:15:00-03', '2026-10-03 09:18:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN',             '27352221118', '2026-10-06 14:40:00-03', '2026-10-06 14:44:00-03'),
+    (gen_random_uuid(), 'PAYMENT_SLIP_ISSUED',       '30712345671', '2026-10-07 14:15:00-03', '2026-10-07 14:19:00-03'),
+    (gen_random_uuid(), 'DEBT_CREATED',              '23256667770', '2026-10-08 10:30:00-03', '2026-10-08 10:33:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN',             '20284445556', '2026-10-09 11:05:00-03', '2026-10-09 11:09:00-03'),
+    (gen_random_uuid(), 'PAYMENT_SLIP_ISSUED',       '20301112220', '2026-10-13 11:40:00-03', '2026-10-13 11:43:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN',             '33714567899', '2026-10-14 16:20:00-03', '2026-10-14 16:23:00-03'),
+    (gen_random_uuid(), 'PAYMENT_SLIP_ISSUED',       '30709998885', '2026-10-16 10:05:00-03', '2026-10-16 10:09:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN',             '23399887771', '2026-10-17 10:50:00-03', '2026-10-17 10:54:00-03'),
+    (gen_random_uuid(), 'DEBT_FORGIVEN',             '20267778883', '2026-10-20 12:30:00-03', '2026-10-20 12:33:00-03'),
+    (gen_random_uuid(), 'PAYMENT_SLIP_ISSUED',       '23256667770', '2026-10-21 15:30:00-03', '2026-10-21 15:33:00-03'),
+    (gen_random_uuid(), 'PAYMENT_SLIP_ISSUED',       '27283334444', '2026-10-23 10:20:00-03', '2026-10-23 10:24:00-03'),
+    -- Ingresos Publicos
+    (gen_random_uuid(), 'TAXPAYER_REGISTERED',       '30715556662', '2026-09-05 10:00:00-03', '2026-09-05 10:03:00-03'),
+    (gen_random_uuid(), 'TAX_RETURN_FILED',          '30712345671', '2026-09-12 17:45:00-03', '2026-09-12 17:49:00-03'),
+    (gen_random_uuid(), 'TAX_ADDRESS_CHANGED',       '27283334444', '2026-09-19 12:30:00-03', '2026-09-19 12:33:00-03'),
+    (gen_random_uuid(), 'TAX_RETURN_FILED',          '30709998885', '2026-10-10 18:20:00-03', '2026-10-10 18:23:00-03'),
+    (gen_random_uuid(), 'TAXPAYER_REGISTERED',       '20389990004', '2026-10-15 09:35:00-03', '2026-10-15 09:39:00-03'),
+    (gen_random_uuid(), 'TAX_RETURN_FILED',          '33714567899', '2026-10-22 16:50:00-03', '2026-10-22 16:53:00-03'),
+    -- Contaduria
+    (gen_random_uuid(), 'SUPPLIER_INVOICE_RECORDED', '30716660017', '2026-09-09 11:00:00-03', '2026-09-09 11:03:00-03'),
+    (gen_random_uuid(), 'PAYMENT_ORDER_ISSUED',      '30716660017', '2026-09-23 10:30:00-03', '2026-09-23 10:34:00-03'),
+    (gen_random_uuid(), 'SUPPLIER_INVOICE_RECORDED', '30708881239', '2026-10-05 15:10:00-03', '2026-10-05 15:13:00-03'),
+    (gen_random_uuid(), 'PAYMENT_ORDER_ISSUED',      '30708881239', '2026-10-19 09:55:00-03', '2026-10-19 09:58:00-03'),
+    (gen_random_uuid(), 'SUPPLIER_INVOICE_RECORDED', '33707772225', '2026-10-23 14:40:00-03', '2026-10-23 14:44:00-03'),
+    -- Administracion (el CUIT es el CUIL del agente)
+    (gen_random_uuid(), 'USER_CREATED',              '20321114446', '2026-09-01 09:10:00-03', '2026-09-01 09:13:00-03'),
+    (gen_random_uuid(), 'PERMISSION_GRANTED',        '20321114446', '2026-09-01 09:14:00-03', '2026-09-01 09:17:00-03'),
+    (gen_random_uuid(), 'USER_CREATED',              '27345556661', '2026-09-16 10:25:00-03', '2026-09-16 10:29:00-03'),
+    (gen_random_uuid(), 'PERMISSION_GRANTED',        '27345556661', '2026-10-12 11:50:00-03', '2026-10-12 11:53:00-03'),
+    -- Auditoria (CUIL del auditor)
+    (gen_random_uuid(), 'EVENTS_EXPORTED',           '20298887775', '2026-09-30 17:30:00-03', '2026-09-30 17:33:00-03'),
+    (gen_random_uuid(), 'EVENTS_EXPORTED',           '20298887775', '2026-10-24 12:15:00-03', '2026-10-24 12:18:00-03');

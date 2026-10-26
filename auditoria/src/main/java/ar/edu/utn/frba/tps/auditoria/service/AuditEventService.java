@@ -18,8 +18,20 @@ import java.util.UUID;
 @Service
 public class AuditEventService {
 
-    // A que modulo del SGM pertenece cada tipo de evento. Hoy solo la condonacion, que es de Tesoreria.
-    private static final Map<String, String> MODULE_BY_TYPE = Map.of("DEBT_FORGIVEN", "TESORERIA");
+    // A que modulo del SGM pertenece cada tipo de evento. La condonacion es el unico que publica el
+    // sistema (ver docs/contracts.md); el resto son del historial que trae el seed (db/init/90-seed.sql).
+    private static final Map<String, String> MODULE_BY_TYPE = Map.ofEntries(
+            Map.entry("DEBT_CREATED", "TESORERIA"),
+            Map.entry("DEBT_FORGIVEN", "TESORERIA"),
+            Map.entry("PAYMENT_SLIP_ISSUED", "TESORERIA"),
+            Map.entry("TAXPAYER_REGISTERED", "INGRESOS_PUBLICOS"),
+            Map.entry("TAX_RETURN_FILED", "INGRESOS_PUBLICOS"),
+            Map.entry("TAX_ADDRESS_CHANGED", "INGRESOS_PUBLICOS"),
+            Map.entry("SUPPLIER_INVOICE_RECORDED", "CONTADURIA"),
+            Map.entry("PAYMENT_ORDER_ISSUED", "CONTADURIA"),
+            Map.entry("USER_CREATED", "ADMINISTRACION"),
+            Map.entry("PERMISSION_GRANTED", "ADMINISTRACION"),
+            Map.entry("EVENTS_EXPORTED", "AUDITORIA"));
 
     // El dia de registro se toma en hora argentina, la misma en que el front muestra las fechas: asi el
     // rango coincide con la columna Registrado. La JVM corre en UTC, por eso la zona va explicita.

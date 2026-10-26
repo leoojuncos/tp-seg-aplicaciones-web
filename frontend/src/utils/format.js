@@ -14,7 +14,20 @@ const DATE_TIME = new Intl.DateTimeFormat('es-AR', {
 
 const DEBT_STATUS = { PENDING: 'Pendiente', FORGIVEN: 'Condonada' };
 
-const EVENT_TYPE = { DEBT_FORGIVEN: 'Condonación de deuda' };
+// Los mismos tipos que Auditoria asigna a cada modulo (AuditEventService).
+const EVENT_TYPE = {
+  DEBT_CREATED: 'Alta de deuda',
+  DEBT_FORGIVEN: 'Condonación de deuda',
+  PAYMENT_SLIP_ISSUED: 'Emisión de boleta de pago',
+  TAXPAYER_REGISTERED: 'Alta de contribuyente',
+  TAX_RETURN_FILED: 'Presentación de DDJJ',
+  TAX_ADDRESS_CHANGED: 'Cambio de domicilio fiscal',
+  SUPPLIER_INVOICE_RECORDED: 'Registro de factura de proveedor',
+  PAYMENT_ORDER_ISSUED: 'Emisión de orden de pago',
+  USER_CREATED: 'Alta de usuario',
+  PERMISSION_GRANTED: 'Asignación de permiso',
+  EVENTS_EXPORTED: 'Exportación de eventos',
+};
 
 export function formatCuit(cuit) {
   return /^\d{11}$/.test(cuit ?? '') ? `${cuit.slice(0, 2)}-${cuit.slice(2, 10)}-${cuit.slice(10)}` : (cuit ?? '');
